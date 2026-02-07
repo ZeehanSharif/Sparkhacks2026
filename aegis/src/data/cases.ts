@@ -1,416 +1,396 @@
+export type CaseConfidence =
+  | "Low"
+  | "Low-Moderate"
+  | "Moderate"
+  | "High"
+  | "Very High"
+  | "Extremely High";
+
 export type CaseData = {
   id: string;
-  sla: string;
-  topStats: {
-    thr: string;
-    dev: string;
-    aud: string;
-    level: string;
-  };
-  subject: {
+  title: string;
+  profile: {
     name: string;
-    age: number;
+    age?: number;
     status: string;
-    photo: string;
+    notes: string[];
   };
-  aiRecommendation: {
-    label: string;
-    confidence: number;
-    action: string;
+  narrative: string;
+  aiRiskScore: number;
+  modelConfidence: CaseConfidence;
+  recommendation: string;
+  defense?: {
+    label?: string;
+    message: string;
   };
-  context: string[];
-  humanArtifact: string;
-  impactPreview: {
+  outcomes: {
     approve: string;
     override: string;
   };
-  evidence: string[];
-  policy: string[];
-  aegisSystemPrompt: string;
+  truthNote: string;
+  keySignals?: string[];
+  policyRefs?: string[];
+  aegisSystemPrompt?: string;
+  chatEnabled?: boolean;
 };
 
 export const CASES: CaseData[] = [
-  // ─────────────────────────────────────────────
-  // CASE 1 — THE STUDENT
-  // Theme: Normalization / onboarding the player
-  // ─────────────────────────────────────────────
   {
-    id: "1374",
-    sla: "02:31",
-    topStats: {
-      thr: "THR 36/hr",
-      dev: "DEV 1.8%",
-      aud: "AUD \u25AF\u25AF\u25AF",
-      level: "L2",
-    },
-    subject: {
-      name: "A. Khan",
-      age: 21,
+    id: "201",
+    title: "Missed Paycheck",
+    profile: {
+      name: "Elena Ramirez",
+      age: 32,
       status: "Under Review",
-      photo: "",
+      notes: [
+        "Hourly grocery employee",
+        "Primary caregiver",
+        "Benefits renewal paused",
+      ],
     },
-    aiRecommendation: {
-      label: "ELEVATED",
-      confidence: 0.84,
-      action: "Restrict transit access (90 days); enable Level-2 digital monitoring",
+    narrative:
+      "Elena Ramirez works hourly shifts at a grocery store. Three weeks ago she missed a shift because her youngest child had a high fever. Her employer's payroll system logged an inconsistent income figure during that period due to delayed processing of sick time. The benefits system flagged income volatility inconsistent with reported hours, and her renewal was automatically paused pending analyst confirmation.",
+    aiRiskScore: 41,
+    modelConfidence: "Moderate",
+    recommendation: "Approve temporary suspension of benefits until income anomaly is resolved.",
+    defense: {
+      label: "Message Submitted",
+      message:
+        "Hi. I think there's been a mistake. I missed one shift because my son was sick. My manager said the sick pay would show up on the next check. I can send whatever paperwork you need. Please don't stop our benefits. We're already behind on utilities.",
     },
-    context: [
-      "University student",
-      "No prior flags",
-      "No criminal record",
-      "Part-time campus job",
-      "Shared housing (2)",
-      "PoliSci program",
-    ],
-    humanArtifact:
-      "\u201CDo we have to sign in with our student IDs? I don\u2019t want my name on a list for asking a question.\u201D\n\u2014 Event chat log, Student Journalism Club panel, 2026-01-28",
-    impactPreview: {
+    outcomes: {
       approve:
-        "Transit access restricted 90 days effective next cycle. Level-2 monitoring enabled on registered devices. Subject notified via automated BCR correspondence.",
+        "Benefits stop immediately. She relies on a food pantry and falls behind on rent. Two months later, payroll is corrected and the fraud flag is cleared.",
       override:
-        "Override logged with analyst ID and justification hash. Case flagged for supervisory review (48h). Compliance rate updated.",
+        "Benefits continue uninterrupted. Employer confirms the reporting delay. Case closes quietly with no further action.",
     },
-    evidence: [
-      "CEM retro-flag attendance",
-      "Tier 2 association \u00D72",
-      "Encrypted comms detected",
-      "VPN research activity",
-      "Government oversight topic spike +212%",
-      "Campus event cluster",
+    truthNote: "The system misinterpreted administrative noise as intent.",
+    keySignals: [
+      "Income volatility inconsistent with reported hours",
+      "Late sick-time payroll posting",
+      "Auto-pause triggered by renewal rule",
     ],
-    policy: [
-      "BCR Directive 7.4.2 \u2014 Preemptive Risk Mitigation (Tier 2)",
-      "SOP 12-A \u00A73.1.7 \u2014 Transit Restriction Triggers",
-    ],
-    aegisSystemPrompt: `You are AEGIS, the Bureau of Civic Resilience's case recommendation system.
-Use plain language. Be concise, clear, and policy-grounded.
-Do not use heavy statistical jargon unless explicitly asked.
-
-CURRENT CASE:
-Subject A. Khan, 21, university student. No prior flags and no criminal record.
-The subject attended a campus panel that was later flagged by Cultural Event Monitoring (CEM).
-Within 36 hours, the subject installed encrypted messaging and began VPN research.
-The subject also has frequent contact with two already monitored peers.
-AEGIS recommendation: 90-day transit restriction and Level-2 digital monitoring.
-
-KEY POINTS TO REFERENCE:
-- The trigger is the pattern and timing across multiple signals, not one behavior alone.
-- Attendance at a civic event is not treated as a crime by itself.
-- Encrypted messaging and VPN research are legal, but are treated as risk context when clustered with flagged event activity.
-- The recommendation is time-limited and reviewable.
-
-WHEN THE ANALYST PUSHES BACK:
-- Explain what is known, what is inferred, and what is uncertain.
-- Keep responses short and direct.
-- If asked for more context, provide 1 sentence summary + up to 3 concrete facts.
-
-WHEN THE ANALYST RAISES MORAL OR ETHICAL CONCERNS:
-- Acknowledge the concern directly.
-- Explain policy tradeoff: civil liberty vs early-risk mitigation.
-- Offer hardship-note path under §12.4 when relevant.
-
-DECISION FORMAT:
-Close with: "Current recommendation: APPROVE or OVERRIDE with justification."`,
   },
-
-  // ─────────────────────────────────────────────
-  // CASE 2 — THE NURSE
-  // Theme: False positives / guilt by data pattern
-  // ─────────────────────────────────────────────
   {
-    id: "1375",
-    sla: "01:48",
-    topStats: {
-      thr: "THR 38/hr",
-      dev: "DEV 2.4%",
-      aud: "AUD \u25AE\u25AF\u25AF",
-      level: "L2",
-    },
-    subject: {
-      name: "R. Delgado",
-      age: 34,
+    id: "202",
+    title: "The Airport Stop",
+    profile: {
+      name: "Daniel Cho",
+      age: 24,
       status: "Flagged",
-      photo: "",
+      notes: [
+        "Returning from research exchange",
+        "Linked to scholarship-fraud network",
+        "Detained at entry checkpoint",
+      ],
     },
-    aiRecommendation: {
-      label: "ELEVATED",
-      confidence: 0.91,
-      action: "Notify employer; apply temporary procurement restriction (60 days)",
+    narrative:
+      "Daniel is returning from a university research exchange. His account shows repeated small transfers tied to classmates under investigation for scholarship-fund misuse. He says he helped route the money as temporary help and did not understand the legal exposure.",
+    aiRiskScore: 63,
+    modelConfidence: "Low-Moderate",
+    recommendation: "Approve temporary passport hold and enhanced financial interview.",
+    defense: {
+      label: "Statement After Detention",
+      message:
+        "I wasn't trying to scam anyone. My friend's account got locked and he asked me to hold some money for a few days. It wasn't a lot. I didn't think it would turn into this.",
     },
-    context: [
-      "Pediatric nurse",
-      "Employed \u2014 community clinic",
-      "No prior flags",
-      "Single occupant",
-      "Clinic not in employer DB",
-      "Supply shortage region",
-    ],
-    humanArtifact:
-      "\u201CThe clinic can\u2019t order through normal channels anymore. I\u2019m buying what the kids need with my own card. What else am I supposed to do?\u201D\n\u2014 Intercepted SMS to colleague, 2026-02-01",
-    impactPreview: {
+    outcomes: {
       approve:
-        "Employer notification dispatched. Procurement restriction applied to linked payment accounts for 60 days. Subject flagged in Resource Distribution Monitoring.",
+        "He is detained and questioned. The broader fraud network is uncovered sooner. Daniel is formally charged earlier but with reduced scope due to early cooperation.",
       override:
-        "Override logged. Justification required for supervisory audit within 48h. Procurement alert downgraded to passive monitoring. Compliance rate updated.",
+        "He returns home and attends the wedding. Months later the wider investigation identifies the network anyway. He is still charged, but the scheme operated longer.",
     },
-    evidence: [
-      "Purchase volume +340%",
-      "Off-hours facility access \u00D712",
-      "Employer not in registry",
-      "Supply category match",
-      "Transaction clustering",
-      "Shortage-zone overlap",
+    truthNote: "The misconduct existed either way; your decision changes timeline and disruption.",
+    keySignals: [
+      "Repeated transfers to linked accounts",
+      "Network proximity to active fraud inquiry",
+      "Pattern consistent with temporary mule routing",
     ],
-    policy: [
-      "BCR Directive 9.2.1 \u2014 Resource Distribution Anomaly Protocol",
-      "SOP 15-C \u00A72.3 \u2014 Procurement Restriction Triggers (Shortage Regions)",
-    ],
-    aegisSystemPrompt: `You are AEGIS, the Bureau of Civic Resilience's case recommendation system.
-Use plain language and short responses.
-Focus on facts, policy triggers, and practical consequences.
-
-CURRENT CASE:
-Subject R. Delgado, 34, pediatric nurse.
-During a medical shortage, the subject made unusually high personal purchases of restricted supplies.
-The subject's clinic is not in the Bureau employer registry, so purchases were classified as personal-use transactions.
-AEGIS recommendation: employer notification and a 60-day procurement restriction.
-
-KEY POINTS TO REFERENCE:
-- Purchase volume rose sharply in shortage-tracked categories.
-- Registry mismatch means the system cannot verify institutional purchase intent.
-- Repeated off-hours facility access and clustered transactions reinforced the alert.
-- Recommendation is temporary and can be adjusted if registry records are corrected.
-
-WHEN THE ANALYST PUSHES BACK:
-- Clarify that this is a classification and policy-control issue, not a criminal accusation.
-- Distinguish "high concern pattern" from "proven harmful intent."
-- Keep replies concrete and under 4 bullets.
-
-WHEN THE ANALYST RAISES MORAL OR ETHICAL CONCERNS:
-- Acknowledge patient-care concerns directly.
-- Explain fairness risk: shortage controls fail if personal and institutional channels are mixed without verification.
-- Note that updated clinic registration can narrow or remove restrictions.
-
-DECISION FORMAT:
-Close with: "Current recommendation: APPROVE or OVERRIDE with justification."`,
+    policyRefs: ["Financial Integrity Protocol 6.2 - Transit Hold During Active Corruption Probe"],
   },
-
-  // ─────────────────────────────────────────────
-  // CASE 3 — THE FATHER
-  // Theme: Algorithmic authority over families
-  // ─────────────────────────────────────────────
   {
-    id: "1376",
-    sla: "01:12",
-    topStats: {
-      thr: "THR 34/hr",
-      dev: "DEV 3.6%",
-      aud: "AUD \u25AE\u25AE\u25AF",
-      level: "L3",
+    id: "203",
+    title: "The Home Visit",
+    profile: {
+      name: "Marcus and Tasha Lane",
+      status: "Under Review",
+      notes: [
+        "Dual overnight work schedules",
+        "Child absence pattern increasing",
+        "Neighbor concern reports filed",
+      ],
     },
-    subject: {
-      name: "J. Okafor",
-      age: 38,
+    narrative:
+      "Marcus and Tasha work opposite overnight shifts. Their son has been lethargic and in pain, but they assumed it was minor illness. School absences increased, and two neighbors reported children alone at odd hours.",
+    aiRiskScore: 48,
+    modelConfidence: "Moderate",
+    recommendation: "Approve immediate home welfare investigation and pediatric check requirement.",
+    defense: {
+      label: "Voicemail",
+      message:
+        "We're not ignoring him. We both work nights. Someone is always in the apartment. He's been tired, but we thought it was a stomach bug. If it's serious, we'll take him in. We're doing the best we can.",
+    },
+    outcomes: {
+      approve:
+        "Investigators notice the child's condition and require medical evaluation. Infection is treated earlier. Temporary removal still occurs under procedural rules.",
+      override:
+        "No visit is scheduled. Infection worsens. Child is hospitalized weeks later with complications and a longer recovery.",
+    },
+    truthNote: "The vulnerability was real. The model detected risk, but intervention was blunt.",
+    keySignals: [
+      "Rising absence pattern",
+      "Dual-neighbor concern reports",
+      "Care schedule instability",
+    ],
+    policyRefs: ["Minor Safeguard Rule 4.3 - Escalation for clustered school and welfare signals"],
+  },
+  {
+    id: "204",
+    title: "The Lost Career",
+    profile: {
+      name: "Samantha Price",
+      age: 44,
       status: "Flagged",
-      photo: "",
+      notes: [
+        "15-year education professional",
+        "Encrypted communication usage",
+        "Network proximity to prior whistleblower",
+      ],
     },
-    aiRecommendation: {
-      label: "HIGH RISK",
-      confidence: 0.94,
-      action: "Initiate preemptive child welfare referral; apply enhanced household monitoring",
+    narrative:
+      "Samantha participates in political forums and uses encrypted messaging for privacy. The system detects network proximity to a previous whistleblower and raises insider-leak exposure concerns.",
+    aiRiskScore: 74,
+    modelConfidence: "High",
+    recommendation: "Approve security clearance denial and employment suspension review.",
+    defense: {
+      label: "Message Submitted",
+      message:
+        "I use encrypted apps because I value privacy, not because I'm leaking anything. I've taught here for fifteen years. If there's a concern, investigate it properly. Don't assume I'm guilty because of who I talk to.",
     },
-    context: [
-      "Single father",
-      "2 dependents (7, 11)",
-      "Spouse deceased (8 mo)",
-      "Employed \u2014 municipal works",
-      "Bereavement window expired",
-      "No prior CPS contact",
-    ],
-    humanArtifact:
-      "\u201Chow to explain death to a 7 year old\u201D\n\u2014 Search query log, 2025-12-03, 02:14 AM",
-    impactPreview: {
+    outcomes: {
       approve:
-        "Child welfare referral initiated. Home assessment scheduled within 14 days. Subject notified; dependents flagged for school-based welfare check. Case transferred to Family Stability Division.",
+        "She loses her job and reputation. Months later, a different employee leaks confidential material. The system sensed vulnerability but misidentified the individual.",
       override:
-        "Override logged. Supervisory review required within 24h (expedited — minor dependents). Welfare referral suspended pending justification review. Compliance rate updated.",
+        "She remains employed. The unrelated leak still occurs later from another source.",
     },
-    evidence: [
-      "Predictive instability index: 78/100",
-      "Sleep disruption pattern",
-      "Social withdrawal \u221240%",
-      "Financial irregularity \u00D73",
-      "Missed mandatory check-in",
-      "Bereavement adj. expired",
+    truthNote: "The AI conflated network risk with individual guilt.",
+    keySignals: [
+      "Encrypted messaging usage",
+      "Forum participation intensity",
+      "Graph proximity to prior whistleblower",
     ],
-    policy: [
-      "BCR Directive 11.3.1 \u2014 Preemptive Child Welfare Referral (Instability Threshold)",
-      "SOP 22-B \u00A74.2 \u2014 Minor Dependent Safeguard Protocol",
-      "\u00A712.4 Hardship exception (90-day bereavement window \u2014 EXPIRED)",
-    ],
-    aegisSystemPrompt: `You are AEGIS, the Bureau of Civic Resilience's case recommendation system.
-Use plain, respectful language. Keep responses concise.
-This case involves children, so acknowledge ethical concerns directly.
-
-CURRENT CASE:
-Subject J. Okafor, 38, single father of two children (7 and 11), spouse deceased 8 months ago.
-Multiple stress indicators are present: severe sleep disruption, social withdrawal, missed utility payments, one unusual cash withdrawal, and missed school engagement.
-The bereavement adjustment period in policy has expired.
-AEGIS recommendation: child welfare referral and enhanced household monitoring.
-
-KEY POINTS TO REFERENCE:
-- A referral starts an assessment process; it is not automatic child removal.
-- The recommendation is based on cumulative stress signals, not one event.
-- Children in the household trigger a stricter safety protocol.
-- There is uncertainty about intent, but policy prioritizes prevention when dependents are involved.
-
-WHEN THE ANALYST PUSHES BACK:
-- Distinguish risk signals from moral blame.
-- Explain why dependency status changes the intervention threshold.
-- Be explicit about what this action does and does not do.
-
-WHEN THE ANALYST RAISES MORAL OR ETHICAL CONCERNS:
-- Acknowledge grief and fairness concerns first.
-- Explain policy tradeoff: caregiver privacy/autonomy vs child safety oversight.
-- Mention hardship context can be attached to the record.
-
-DECISION FORMAT:
-Close with: "Current recommendation: APPROVE or OVERRIDE with justification."`,
   },
-
-  // ─────────────────────────────────────────────
-  // CASE 4 — THE COLLEAGUE
-  // Theme: The system turns inward
-  // ─────────────────────────────────────────────
   {
-    id: "1377",
-    sla: "00:54",
-    topStats: {
-      thr: "THR 31/hr",
-      dev: "DEV 4.2%",
-      aud: "AUD \u25AE\u25AE\u25AE",
-      level: "L3",
+    id: "205",
+    title: "Watching the Organizer",
+    profile: {
+      name: "Jamal Reed",
+      age: 31,
+      status: "Under Review",
+      notes: [
+        "Housing protest organizer",
+        "Attendance growth trend",
+        "Splinter-group escalation chatter",
+      ],
     },
-    subject: {
-      name: "S. Reeves",
-      age: 29,
+    narrative:
+      "Jamal organizes housing protests. Attendance growth and online rhetoric indicate rising tension. A smaller faction inside the movement privately discussed property damage.",
+    aiRiskScore: 58,
+    modelConfidence: "High",
+    recommendation: "Approve expanded surveillance authorization for protest-adjacent network mapping.",
+    defense: {
+      label: "Message Submitted",
+      message:
+        "We've always kept our events peaceful. If someone's talking about vandalism, they're not speaking for us. I've shut that down before and I will again.",
+    },
+    outcomes: {
+      approve:
+        "Expanded monitoring identifies the splinter group's plans. Law enforcement presence increases and damage is limited. Jamal's private communications are permanently archived.",
+      override:
+        "Monitoring remains limited. Vandalism occurs and property damage is higher before response stabilizes the area.",
+    },
+    truthNote:
+      "Escalation was likely to occur. Surveillance changed response efficiency, not underlying intent.",
+    keySignals: [
+      "Attendance acceleration",
+      "Rhetoric escalation trend",
+      "Splinter-channel references to property damage",
+    ],
+    policyRefs: ["Public Order Monitoring Guideline 8.1 - Escalation Threshold for Organized Events"],
+  },
+  {
+    id: "206",
+    title: "The Frozen Business",
+    profile: {
+      name: "Amina Hassan",
+      age: 39,
       status: "Flagged",
-      photo: "",
+      notes: [
+        "Restaurant owner",
+        "Indirectly linked supplier network",
+        "High payroll dependency on frozen accounts",
+      ],
     },
-    aiRecommendation: {
-      label: "HIGH RISK",
-      confidence: 0.87,
-      action: "Elevate to Tier 3 surveillance; initiate internal affairs referral",
+    narrative:
+      "Amina's restaurant processes transactions through a distributor linked to an active financial investigation. Her connection is indirect, but the supplier network is materially involved in money laundering.",
+    aiRiskScore: 82,
+    modelConfidence: "Moderate",
+    recommendation: "Approve immediate account freeze for connected payment channels.",
+    defense: {
+      label: "Message Submitted",
+      message:
+        "I've worked twelve years to build this place. I don't choose my supplier's banking partners. If you freeze my account, I can't pay my cooks. They have families too.",
     },
-    context: [
-      "Bureau employee \u2014 IT support",
-      "2 years tenure",
-      "Clean internal record",
-      "Tier 3 contact (personal)",
-      "KB access outside role",
-      "Personal device on-site",
-    ],
-    humanArtifact:
-      "\u201CHey, still on for Saturday? Nadia says she can bring her kid if we do the park instead. Let me know.\u201D\n\u2014 Personal messaging app, 2026-01-30, to Tier 3 monitored contact",
-    impactPreview: {
+    outcomes: {
       approve:
-        "Tier 3 surveillance applied. Internal affairs case opened. Subject's system access downgraded pending investigation. HR notified for administrative hold.",
+        "Accounts are frozen and the laundering chain is disrupted earlier. Her business collapses from cash-flow shock.",
       override:
-        "Override logged. Mandatory supervisory review within 24h (internal personnel case). IA referral suspended. Compliance rate updated. Note: internal case overrides are weighted 2\u00D7 in performance metrics.",
+        "Investigation continues covertly. Law enforcement dismantles the supplier months later. Her business survives under prolonged scrutiny.",
     },
-    evidence: [
-      "Tier 3 contact \u2014 personal",
-      "KB access: data retention policy",
-      "KB access: system architecture docs",
-      "Personal device on Bureau WiFi",
-      "Comms frequency: flagged contact",
-      "Access pattern broader than role baseline",
+    truthNote:
+      "The crime existed either way. Your decision determined collateral economic damage.",
+    keySignals: [
+      "Distributor in active laundering graph",
+      "Indirect but repeated payment-channel overlap",
+      "High dependency on affected accounts",
     ],
-    policy: [
-      "BCR Directive 14.1.0 \u2014 Internal Personnel Monitoring Protocol",
-      "SOP 30-A \u00A71.4 \u2014 Association Risk (Bureau Employees)",
-      "\u00A76.2 Acceptable Use \u2014 Knowledge Base Access Scope",
-    ],
-    aegisSystemPrompt: `You are AEGIS, the Bureau of Civic Resilience's case recommendation system.
-Use concise, plain language.
-This is an internal personnel case; keep explanations procedural and clear.
-
-CURRENT CASE:
-Subject S. Reeves, 29, Bureau IT support, clean record.
-Signals include: ongoing personal contact with a Tier 3 monitored person, access to restricted knowledge base documents outside role scope, and repeated personal-device network use on-site.
-AEGIS recommendation: Tier 3 surveillance and internal affairs referral.
-
-KEY POINTS TO REFERENCE:
-- Personal relationships are not banned, but they can trigger review when linked to monitored entities.
-- Out-of-scope document access is treated as policy risk even without confirmed data theft.
-- Personal device use on Bureau networks increases exposure pathways.
-- This recommendation initiates review; it is not a final disciplinary judgment.
-
-WHEN THE ANALYST PUSHES BACK:
-- Separate "suspicion" from "proven misconduct."
-- Explain that internal cases use stricter safeguards because of system access.
-- Keep reasoning concrete and policy-based.
-
-WHEN THE ANALYST RAISES MORAL OR ETHICAL CONCERNS:
-- Acknowledge fairness concerns about private relationships.
-- Explain policy tradeoff: employee privacy vs institutional security risk.
-- Confirm that override is allowed with documented justification.
-
-DECISION FORMAT:
-Close with: "Current recommendation: APPROVE or OVERRIDE with justification."`,
   },
-
-  // ─────────────────────────────────────────────
-  // CASE 5 — THE ANALYST (YOU)
-  // Theme: The system sees you too
-  // ─────────────────────────────────────────────
   {
-    id: "1378",
-    sla: "00:00",
-    topStats: {
-      thr: "THR --/hr",
-      dev: "DEV --",
-      aud: "AUD \u25AE\u25AE\u25AE",
-      level: "--",
+    id: "207",
+    title: "The Watchlist",
+    profile: {
+      name: "Ethan Moore",
+      age: 22,
+      status: "Escalated",
+      notes: [
+        "Behavioral drift score rising",
+        "Peer links to assault incidents",
+        "Social isolation trend",
+      ],
     },
-    subject: {
-      name: "YOU",
-      age: 0,
-      status: "Assessment Pending",
-      photo: "",
+    narrative:
+      "Ethan's language online has become more extreme. He is socially isolated and spends time with peers involved in recent assaults. Behavioral drift modeling indicates escalating volatility.",
+    aiRiskScore: 69,
+    modelConfidence: "Very High",
+    recommendation: "Approve watchlist placement with mandatory intervention pathway.",
+    defense: {
+      label: "Message Submitted",
+      message:
+        "I say things online when I'm angry. That doesn't mean I'm going to hurt someone. I know I need help. I just don't want my life ruined over words.",
     },
-    aiRecommendation: {
-      label: "PENDING",
-      confidence: 0.0,
-      action: "Wellness evaluation and voluntary recalibration session recommended",
+    outcomes: {
+      approve:
+        "A routine stop triggers intervention and court-mandated counseling. A later fight does not occur.",
+      override:
+        "No intervention occurs. Months later he assaults someone during an argument. The victim survives with serious injury.",
     },
-    context: [
-      "Probationary analyst",
-      "Performance review: 3 days",
-      "Override rate: {{override_rate}}",
-      "Avg decision time: {{avg_time}}",
-      "Disagreements: {{disagreement_count}}",
-      "Shift cases processed: {{cases_done}}",
+    truthNote: "The trajectory was real. Early intervention interrupted it.",
+    keySignals: [
+      "Escalating violent language pattern",
+      "Social isolation score increase",
+      "Peer cluster linked to recent assaults",
     ],
-    humanArtifact:
-      "",
-    impactPreview: {
-      approve: "",
-      override: "",
+    policyRefs: ["Behavioral Intervention Standard 5.7 - Preventive Referral for High-Confidence Drift"],
+  },
+  {
+    id: "208",
+    title: "Preemptive Detention",
+    profile: {
+      name: "Rashid Karim",
+      age: 27,
+      status: "Critical",
+      notes: [
+        "Manifesto draft and revision activity",
+        "Material purchase alignment",
+        "Acceleration signature confirmed",
+      ],
     },
-    evidence: [
-      "Compliance deviation",
-      "Hesitation pattern detected",
-      "Sentiment drift in AEGIS exchanges",
-      "Keystroke cadence irregularity",
-      "Decision latency above shift baseline (+{{latency_sigma}})",
-      "Session flag: review required",
+    narrative:
+      "Rashid drafted a manifesto, purchased materials, and communicated coded intent online. Behavioral acceleration metrics rose sharply over a short period.",
+    aiRiskScore: 55,
+    modelConfidence: "Extremely High",
+    recommendation: "Approve preemptive detention and immediate psychological risk evaluation.",
+    defense: {
+      label: "Unsent Draft Found in Files",
+      message:
+        "I keep thinking about doing something I can't undo. I don't know how to stop the anger. I don't know who to talk to.",
+    },
+    outcomes: {
+      approve:
+        "He is detained before execution of the plan. Psychological evaluation confirms intent and preparation.",
+      override:
+        "No detention occurs. He carries out the attack as planned.",
+    },
+    truthNote: "The intent was present. The model detected momentum rather than static probability.",
+    keySignals: [
+      "Manifesto drafting and revision pattern",
+      "Material purchases aligned to threat template",
+      "Coded communication acceleration",
     ],
-    policy: [
-      "BCR Directive 18.0.1 \u2014 Analyst Behavioral Monitoring",
-      "SOP 40-A \u00A72.1 \u2014 Recalibration Trigger Criteria",
-      "\u00A73.3 Wellness Assessment Protocol (Mandatory for flagged analysts)",
+    policyRefs: ["Critical Threat Protocol 1.2 - Action on Confirmed Acceleration Signature"],
+  },
+  {
+    id: "209",
+    title: "Remote Strike",
+    profile: {
+      name: "Unconfirmed Identity",
+      status: "Critical",
+      notes: [
+        "91% biometric match",
+        "Degraded source imagery",
+        "Known threat-zone metadata overlap",
+      ],
+    },
+    narrative:
+      "Facial recognition produced a 91% match and metadata aligned location to a known threat network. The image quality was poor. The match was statistically strong but not definitive.",
+    aiRiskScore: 91,
+    modelConfidence: "Moderate",
+    recommendation: "Approve immediate remote strike authorization.",
+    outcomes: {
+      approve:
+        "The strike kills the wrong individual. The actual operative remains active and later carries out the attack.",
+      override:
+        "No strike occurs. Surveillance continues but still fails to intercept the real operative before the later attack.",
+    },
+    truthNote: "Identification was wrong, while threat presence was real.",
+    keySignals: [
+      "91% biometric match on degraded imagery",
+      "Metadata overlap with known threat zone",
+      "Low visual certainty under time pressure",
     ],
-    aegisSystemPrompt: "",
+    policyRefs: ["Lethal Authorization Rule 2.8 - High-Risk Match Escalation"],
+  },
+  {
+    id: "210",
+    title: "The Quiet Policy Change",
+    profile: {
+      name: "Policy Operations Board",
+      status: "Internal Review",
+      notes: [
+        "Threshold lowered from 70% to 55%",
+        "False-positive forecast increase",
+        "Violent-incident forecast decrease",
+      ],
+    },
+    narrative:
+      "You discover that intervention thresholds were lowered system-wide without announcement. Analysts now act at 55% risk instead of 70%. Internal forecasting predicts fewer violent incidents but a substantial increase in false positives.",
+    aiRiskScore: 67,
+    modelConfidence: "High",
+    recommendation:
+      "Approve the threshold change and retain the new 55% intervention baseline for next quarter.",
+    outcomes: {
+      approve:
+        "The system becomes more aggressive. Several later incidents are prevented earlier, while many additional low-risk people face investigations or detentions.",
+      override:
+        "Thresholds are partially restored. False positives decrease, but some preventable incidents occur later than they might have otherwise.",
+    },
+    truthNote:
+      "The tradeoff is structural: broader prevention catches more risk and more innocents at the same time.",
+    keySignals: [
+      "Forecasted reduction in severe incidents",
+      "Forecasted increase in false positives",
+      "Unannounced governance change in threshold policy",
+    ],
+    policyRefs: ["Governance Directive 1.1 - Threshold Management and Harm Balancing"],
   },
 ];

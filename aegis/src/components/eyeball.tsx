@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useMemo, useEffect } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
@@ -18,6 +18,11 @@ const animState = {
   coreEmissive: 0.4,
   coreColor: { r: 0.85, g: 0.15, b: 0.15 }, // red
 };
+
+function deterministicNoise(index: number, seed: number) {
+  const x = Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453;
+  return x - Math.floor(x);
+}
 
 // ─── Core Mesh (inner pulsing sphere — the "eye") ───
 function CoreSphere({ reducedMotion }: { reducedMotion: boolean }) {
@@ -124,8 +129,9 @@ function DataParticles({ count, reducedMotion }: { count: number; reducedMotion:
   const ref = useRef<THREE.Points>(null!);
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
+    const seed = count * 31;
     for (let i = 0; i < count * 3; i++) {
-      arr[i] = (Math.random() - 0.5) * 12;
+      arr[i] = (deterministicNoise(i, seed) - 0.5) * 12;
     }
     return arr;
   }, [count]);
@@ -210,15 +216,18 @@ function Sculpture({ reducedMotion }: { reducedMotion: boolean }) {
 
 // ─── Camera Controller (lerps toward scroll targets) ───
 function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
-  const { camera } = useThree();
-
-  useFrame(() => {
+  useFrame((state) => {
     if (reducedMotion) return;
-    camera.position.x += (animState.camX - camera.position.x) * 0.04;
-    camera.position.y += (animState.camY - camera.position.y) * 0.04;
-    camera.position.z += (animState.camZ - camera.position.z) * 0.04;
-    camera.rotation.x += (animState.camRotX - camera.rotation.x) * 0.04;
-    camera.rotation.y += (animState.camRotY - camera.rotation.y) * 0.04;
+    const { camera } = state;
+
+    const nextX = camera.position.x + (animState.camX - camera.position.x) * 0.04;
+    const nextY = camera.position.y + (animState.camY - camera.position.y) * 0.04;
+    const nextZ = camera.position.z + (animState.camZ - camera.position.z) * 0.04;
+    camera.position.set(nextX, nextY, nextZ);
+
+    const nextRotX = camera.rotation.x + (animState.camRotX - camera.rotation.x) * 0.04;
+    const nextRotY = camera.rotation.y + (animState.camRotY - camera.rotation.y) * 0.04;
+    camera.rotation.set(nextRotX, nextRotY, camera.rotation.z);
   });
 
   return null;
