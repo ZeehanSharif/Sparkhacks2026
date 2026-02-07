@@ -200,7 +200,7 @@ export default function StartPage() {
             </p>
             <div className="fade-up">
               <Link
-                href="/case"
+                href="/briefing"
                 className="inline-flex items-center gap-3 bg-red-600 hover:bg-red-500 text-white px-8 py-4 font-mono text-xs tracking-[0.2em] uppercase transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(220,38,38,0.3)]"
               >
                 BEGIN FIRST CASE

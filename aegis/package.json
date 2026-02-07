@@ -9,9 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/groq": "^3.0.22",
+    "@ai-sdk/react": "^3.0.79",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@types/three": "^0.182.0",
+    "ai": "^6.0.77",
     "gsap": "^3.14.2",
     "next": "16.1.6",
     "react": "19.2.3",
