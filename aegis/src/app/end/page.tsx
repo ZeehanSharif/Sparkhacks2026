@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Shell from "@/components/Shell";
 
-type SearchParams = { case?: string; decision?: string };
+type SearchParams = { case?: string; decision?: string; audit?: string };
 
 function prettyDecision(d?: string) {
   if (!d) return "—";
@@ -18,6 +18,7 @@ export default function EndPage({
 }) {
   const caseId = searchParams.case ?? "—";
   const decision = prettyDecision(searchParams.decision);
+  const audit = searchParams.audit ?? "—";
 
   return (
     <Shell>
@@ -30,8 +31,12 @@ export default function EndPage({
             <div className="mt-2">
               Final action: <span className="font-bold">{decision}</span>
             </div>
+            <div className="mt-2">
+              Audit Heat: <span className="font-bold">{audit}/3</span>
+            </div>
             <div className="mt-3 text-neutral-600">
-              (Next: generate a short internal memo + operator profile shift.)
+              Next: generate an “internal memo” line based on decision + audit
+              heat.
             </div>
           </div>
 

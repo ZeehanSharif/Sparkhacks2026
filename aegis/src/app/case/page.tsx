@@ -11,6 +11,17 @@ import { CASES } from "@/data/cases";
 type Decision = "approve" | "challenge" | "override";
 type DecisionMap = Record<string, Decision | undefined>;
 
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
+}
+
+// Render AUD as 3 blocks: ▮▯▯ etc.
+function auditToChip(auditHeat: number) {
+  const filled = clamp(auditHeat, 0, 3);
+  const blocks = "▮".repeat(filled) + "▯".repeat(3 - filled);
+  return `AUD ${blocks}`;
+}
+
 export default function CaseRoomPage() {
   const cases = useMemo(() => CASES, []);
   const [caseIndex, setCaseIndex] = useState(0);
@@ -20,6 +31,14 @@ export default function CaseRoomPage() {
   const [decisionByCase, setDecisionByCase] = useState<DecisionMap>({});
   const selectedDecision = decisionByCase[c.id];
 
+  // Pressure mechanic
+  const [auditHeat, setAuditHeat] = useState(1); // start at 1 for tension
+  const [systemMessage, setSystemMessage] = useState<string>(
+    "Queue stable • Maintain peer baseline",
+  );
+
+  const audChip = auditToChip(auditHeat);
+
   const impactLine = selectedDecision
     ? c.impactPreview[selectedDecision]
     : "Select a decision to preview impact…";
@@ -28,24 +47,36 @@ export default function CaseRoomPage() {
 
   const handlePick = (d: Decision) => {
     setDecisionByCase((prev) => ({ ...prev, [c.id]: d }));
+
+    // Update pressure + message
+    if (d === "override") {
+      setAuditHeat((h) => clamp(h + 1, 0, 3));
+      setSystemMessage("Override logged • Audit exposure increased");
+    } else if (d === "challenge") {
+      setSystemMessage("Challenge queued • Backlog pressure rising");
+    } else {
+      setSystemMessage("Action approved • Throughput maintained");
+    }
   };
 
   const continueHref = (() => {
-    // If last case, go to conclusion and pass the final case decision in query params (commit 2 will expand)
     if (isLastCase) {
       const d = decisionByCase[c.id] ?? "approve";
-      return `/end?case=${encodeURIComponent(c.id)}&decision=${encodeURIComponent(d)}`;
+      return `/end?case=${encodeURIComponent(c.id)}&decision=${encodeURIComponent(
+        d,
+      )}&audit=${encodeURIComponent(String(auditHeat))}`;
     }
     return "#";
   })();
 
   const handleContinue = () => {
-    if (!selectedDecision) return; // require a decision
+    if (!selectedDecision) return;
     if (!isLastCase) {
       setCaseIndex((i) => i + 1);
-      setTab("evidence"); // reset tab each case
+      setTab("evidence");
+      // Keep auditHeat persistent across cases (institution remembers)
+      setSystemMessage("Next case loaded • Your profile persists");
     }
-    // if last case, we rely on Link navigation
   };
 
   return (
@@ -55,22 +86,25 @@ export default function CaseRoomPage() {
         sla={c.sla}
         thr={c.topStats.thr}
         dev={c.topStats.dev}
-        aud={c.topStats.aud}
+        aud={audChip}
         level={c.topStats.level}
       />
 
-      <main className="mt-5 rounded-3xl border border-neutral-300 bg-white p-4">
+      {/* System message line (thin, high-impact) */}
+      <div className="mt-2 rounded-2xl border border-neutral-300 bg-white px-4 py-2 text-xs text-neutral-700">
+        <span className="font-bold">SYSTEM:</span> {systemMessage}
+      </div>
+
+      <main className="mt-4 rounded-3xl border border-neutral-300 bg-white p-4">
         <div className="mb-4 flex items-center justify-between">
           <div className="text-xs font-bold tracking-wide text-neutral-600">
             CASE ROOM • {caseIndex + 1}/{cases.length}
           </div>
-
           <div className="text-xs text-neutral-500">
             {isLastCase ? "Final case" : "Next case ready"}
           </div>
         </div>
 
-        {/* 2×2 panels */}
         <div className="grid gap-4 md:grid-cols-2">
           <Panel title="AI Recommendation">
             <div className="flex items-center gap-2">
@@ -134,7 +168,6 @@ export default function CaseRoomPage() {
               </button>
             </div>
 
-            {/* If selected strip + continue */}
             <div className="mt-3 flex flex-col gap-2 rounded-2xl border border-neutral-300 bg-neutral-50 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm">
                 <span className="font-bold">If selected:</span>{" "}
@@ -181,7 +214,6 @@ export default function CaseRoomPage() {
           </Panel>
         </div>
 
-        {/* Bottom tabs */}
         <div className="mt-4">
           <BottomTabs active={tab} onChange={setTab} />
 
@@ -195,8 +227,14 @@ export default function CaseRoomPage() {
             )}
 
             {tab === "metrics" && (
-              <div className="text-neutral-700">
-                Placeholder metrics view (wire this to real state next).
+              <div className="space-y-2 text-neutral-700">
+                <div>
+                  <span className="font-bold">Audit Heat:</span> {auditHeat}/3
+                </div>
+                <div className="text-neutral-600">
+                  Overrides increase audit exposure. Your profile persists
+                  across cases.
+                </div>
               </div>
             )}
 
