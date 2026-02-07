@@ -2,11 +2,12 @@ import Link from "next/link";
 import Shell from "@/components/Shell";
 import { CASES } from "@/data/cases";
 
-type Decision = "approve" | "challenge" | "override";
+type Decision = "approve" | "override";
 type SearchParams = {
   decisions?: string;
   audit?: string;
   overrides?: string;
+  disagreements?: string;
   compliance?: string;
 };
 
@@ -15,19 +16,17 @@ type EndPageProps = {
 };
 
 function parseDecision(value: string): Decision | null {
-  if (value === "approve" || value === "challenge" || value === "override") return value;
+  if (value === "approve" || value === "override") return value;
   return null;
 }
 
 function prettyDecision(d: Decision) {
   if (d === "approve") return "APPROVED";
-  if (d === "challenge") return "DEFERRED";
   return "OVERRIDDEN";
 }
 
 function decisionColor(d: Decision) {
   if (d === "approve") return "text-green-400";
-  if (d === "challenge") return "text-amber-400";
   return "text-red-400";
 }
 
@@ -53,11 +52,13 @@ export default async function EndPage({
 
   const totalCases = decisionRows.length;
   const approvals = decisionRows.filter((row) => row.decision === "approve").length;
-  const challenges = decisionRows.filter((row) => row.decision === "challenge").length;
   const overridesFromDecisions = decisionRows.filter((row) => row.decision === "override").length;
 
   const parsedOverrides = Number(resolvedSearchParams.overrides);
   const overrideCount = Number.isFinite(parsedOverrides) ? parsedOverrides : overridesFromDecisions;
+
+  const parsedDisagreements = Number(resolvedSearchParams.disagreements);
+  const disagreementCount = Number.isFinite(parsedDisagreements) ? parsedDisagreements : 0;
 
   const parsedAudit = Number(resolvedSearchParams.audit);
   const auditHeat = Number.isFinite(parsedAudit) ? parsedAudit : 0;
@@ -97,8 +98,8 @@ export default async function EndPage({
               </div>
               <div>
                 <span className="text-neutral-700">&gt; </span>
-                Approvals: <span className="text-green-400">{approvals}</span> | Deferrals:{" "}
-                <span className="text-amber-400">{challenges}</span> | Overrides:{" "}
+                Approvals: <span className="text-green-400">{approvals}</span> | Disagreements:{" "}
+                <span className="text-amber-400">{disagreementCount}</span> | Overrides:{" "}
                 <span className="text-red-400">{overrideCount}</span>
               </div>
               <div>

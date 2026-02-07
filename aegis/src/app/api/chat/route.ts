@@ -8,7 +8,6 @@ type ChatRequestBody = {
   complianceRate?: number;
   overrideCount?: number;
   disagreementCount?: number;
-  challengeCount?: number;
   decisionHistory?: string;
 };
 
@@ -29,37 +28,44 @@ export async function POST(req: Request) {
       complianceRate,
       overrideCount,
       disagreementCount,
-      challengeCount,
       decisionHistory,
     } = (await req.json()) as ChatRequestBody;
 
     const caseData = CASES.find((caseItem) => caseItem.id === caseId);
-    if (!caseData?.civicSystemPrompt) {
+    if (!caseData?.aegisSystemPrompt) {
       return new Response("No AI available for this case", { status: 400 });
     }
-
-    const adaptedCasePrompt = caseData.civicSystemPrompt
-      .replaceAll("CIVIC", "AEGIS")
-      .replaceAll("Civic", "AEGIS");
 
     const analystProfile = `\n\nANALYST PROFILE (live session data):
 - Compliance Rate: ${safeNumber(complianceRate, 100)}% (Bureau average: 88%)
 - Overrides this shift: ${safeNumber(overrideCount)}
-- Disagreements this shift: ${safeNumber(disagreementCount ?? challengeCount)}
+- Disagreements this shift: ${safeNumber(disagreementCount)}
 - Decision history: ${decisionHistory ?? "No decisions recorded"}
 - Performance review: scheduled in 3 days`;
 
-    const namingGuardrail = `\n\nIDENTITY DIRECTIVE:
+    const responseGuardrail = `\n\nIDENTITY DIRECTIVE:
 - You are AEGIS.
-- Never refer to yourself as CIVIC.
-- Keep tone clinical, policy-referential, and concise.`;
+- Keep tone clinical, policy-referential, and concise.
 
-    const systemPrompt = `${adaptedCasePrompt}${analystProfile}${namingGuardrail}`;
+RESPONSE STYLE (strict):
+- Be concise and easy to scan.
+- Default length: maximum 90 words.
+- Use 2-4 short bullet points unless a paragraph is clearly better.
+- If asked for "more context", respond with:
+  1) one-sentence summary,
+  2) up to 3 key data points,
+  3) one-line recommendation.
+- Avoid repeating full case details unless explicitly asked for full detail.
+- In this interface, valid actions are APPROVE or OVERRIDE only.
+- Do not mention deferring or senior review options.`;
+
+    const systemPrompt = `${caseData.aegisSystemPrompt}${analystProfile}${responseGuardrail}`;
 
     const result = streamText({
       model: groq("llama-3.3-70b-versatile"),
       system: systemPrompt,
       messages: await convertToModelMessages(messages),
+      maxOutputTokens: 220,
     });
 
     return result.toUIMessageStreamResponse({

@@ -122,7 +122,7 @@ export default function CaseRoomPage() {
       "{{override_rate}}": `${overrideRate}%`,
       "{{cases_done}}": String(casesDone),
       "{{avg_time}}": avgTime,
-      "{{deferral_count}}": String(disagreeCount),
+      "{{disagreement_count}}": String(disagreeCount),
       "{{latency_sigma}}": latencySigma,
     }),
     [avgTime, casesDone, disagreeCount, latencySigma, overrideRate],
@@ -205,6 +205,8 @@ export default function CaseRoomPage() {
     sessionDecisionList.join(","),
   )}&audit=${encodeURIComponent(String(auditHeat))}&overrides=${encodeURIComponent(
     String(overrideCount),
+  )}&disagreements=${encodeURIComponent(
+    String(disagreeCount),
   )}&compliance=${encodeURIComponent(String(complianceRate))}`;
 
   const initials = c.subject.name
@@ -214,7 +216,7 @@ export default function CaseRoomPage() {
     .toUpperCase();
 
   const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
-  const isChatEnabled = Boolean(c.civicSystemPrompt.trim());
+  const isChatEnabled = Boolean(c.aegisSystemPrompt.trim());
   const currentChatMessages = chatMessagesByCase[c.id] ?? [];
 
   const { messages, sendMessage, status: chatStatus, error: chatError, clearError } = useChat({
@@ -264,7 +266,6 @@ export default function CaseRoomPage() {
           complianceRate,
           overrideCount,
           disagreementCount: disagreeCount,
-          challengeCount: disagreeCount,
           decisionHistory,
         },
       },

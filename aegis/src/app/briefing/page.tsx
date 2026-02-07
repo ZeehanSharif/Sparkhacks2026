@@ -7,7 +7,7 @@ import Shell from "@/components/Shell";
 const BRIEFING_LINES = [
   "Welcome, Analyst. Clearance: Level 3.",
   "Your shift queue contains 5 cases for review.",
-  "Each case has been pre-evaluated by CIVIC's predictive assessment engine.",
+  "Each case has been pre-evaluated by AEGIS's predictive assessment engine.",
   "Your role is to review and action each recommendation.",
   "Compliance rate is monitored for quality assurance purposes.",
 ];
