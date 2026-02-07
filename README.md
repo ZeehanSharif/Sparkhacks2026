@@ -17,12 +17,12 @@ We built AEGIS because we realized AI is already making decisions that affect re
 - End-of-game summary and replay
 
 ## Code Structure
-
+```
 aegis/
 ├── src/
 │   ├── app/
 │   │   ├── end/
-│   │   │   └── page.tsx        ← MODIFIED: Added Decision Impact Review + Reflection
+│   │   │   └── page.tsx
 │   │   ├── case/
 │   │   │   └── page.tsx
 │   │   ├── briefing/
@@ -51,6 +51,7 @@ aegis/
 ├── tsconfig.json
 ├── next.config.ts
 └── .env.local
+```
 
 ## Getting Started
 
