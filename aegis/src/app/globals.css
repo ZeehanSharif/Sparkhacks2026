@@ -34,3 +34,14 @@ html.lenis, html.lenis body {
 .glow-text {
   text-shadow: 0 0 8px currentColor;
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
