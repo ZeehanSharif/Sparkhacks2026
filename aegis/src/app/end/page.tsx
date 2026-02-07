@@ -10,6 +10,10 @@ type SearchParams = {
   compliance?: string;
 };
 
+type EndPageProps = {
+  searchParams: SearchParams | Promise<SearchParams>;
+};
+
 function parseDecision(value: string): Decision | null {
   if (value === "approve" || value === "challenge" || value === "override") return value;
   return null;
@@ -27,12 +31,12 @@ function decisionColor(d: Decision) {
   return "text-red-400";
 }
 
-export default function EndPage({
+export default async function EndPage({
   searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
-  const decisions = (searchParams.decisions ?? "")
+}: EndPageProps) {
+  const resolvedSearchParams = await Promise.resolve(searchParams);
+
+  const decisions = (resolvedSearchParams.decisions ?? "")
     .split(",")
     .map((value) => parseDecision(value.trim()))
     .filter((value): value is Decision => value !== null);
@@ -52,13 +56,13 @@ export default function EndPage({
   const challenges = decisionRows.filter((row) => row.decision === "challenge").length;
   const overridesFromDecisions = decisionRows.filter((row) => row.decision === "override").length;
 
-  const parsedOverrides = Number(searchParams.overrides);
+  const parsedOverrides = Number(resolvedSearchParams.overrides);
   const overrideCount = Number.isFinite(parsedOverrides) ? parsedOverrides : overridesFromDecisions;
 
-  const parsedAudit = Number(searchParams.audit);
+  const parsedAudit = Number(resolvedSearchParams.audit);
   const auditHeat = Number.isFinite(parsedAudit) ? parsedAudit : 0;
 
-  const parsedCompliance = Number(searchParams.compliance);
+  const parsedCompliance = Number(resolvedSearchParams.compliance);
   const complianceRate = Number.isFinite(parsedCompliance)
     ? parsedCompliance
     : totalCases > 0

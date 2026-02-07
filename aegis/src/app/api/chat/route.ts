@@ -19,6 +19,10 @@ function safeNumber(value: number | undefined, fallback = 0) {
 
 export async function POST(req: Request) {
   try {
+    if (!process.env.GROQ_API_KEY) {
+      return new Response("Missing GROQ_API_KEY in environment", { status: 500 });
+    }
+
     const {
       messages = [],
       caseId,

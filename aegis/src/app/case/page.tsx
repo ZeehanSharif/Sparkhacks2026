@@ -145,8 +145,20 @@ export default function CaseRoomPage() {
   };
 
   const handleApprove = () => {
-    setDecisionByCase((prev) => ({ ...prev, [c.id]: "approve" }));
-    addSystemMessage("Action approved // Throughput maintained");
+    setDecisionByCase((prev) => {
+      if (prev[c.id] === "approve") {
+        const next = { ...prev };
+        delete next[c.id];
+        return next;
+      }
+      return { ...prev, [c.id]: "approve" };
+    });
+
+    if (selectedDecision === "approve") {
+      addSystemMessage("Approval cleared // pending final decision");
+    } else {
+      addSystemMessage("Action approved // Throughput maintained");
+    }
   };
 
   const handleDisagree = () => {
@@ -205,7 +217,7 @@ export default function CaseRoomPage() {
   const isChatEnabled = Boolean(c.civicSystemPrompt.trim());
   const currentChatMessages = chatMessagesByCase[c.id] ?? [];
 
-  const { messages, sendMessage, status: chatStatus } = useChat({
+  const { messages, sendMessage, status: chatStatus, error: chatError, clearError } = useChat({
     id: `aegis-${c.id}`,
     transport,
     messages: currentChatMessages,
@@ -565,21 +577,41 @@ export default function CaseRoomPage() {
           </div>
 
           {isChatEnabled ? (
-            <form onSubmit={handleChatSubmit} className="mt-3 flex gap-2 border-t border-neutral-800 pt-3">
-              <input
-                value={chatInput}
-                onChange={(event) => setChatInput(event.target.value)}
-                placeholder="Ask AEGIS..."
-                className="flex-1 border border-neutral-800 bg-neutral-900 px-3 py-2 font-mono text-sm text-neutral-300 outline-none placeholder:text-neutral-600 focus:border-red-500/40"
-              />
-              <button
-                type="submit"
-                disabled={chatStatus === "submitted" || chatStatus === "streaming" || chatInput.trim().length === 0}
-                className="border border-red-500/50 bg-red-600/10 px-4 py-2 font-mono text-sm text-red-400 transition hover:bg-red-600/20 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                -&gt;
-              </button>
-            </form>
+            <>
+              {chatError && (
+                <div className="mt-3 border border-red-500/40 bg-red-950/30 p-3 font-mono text-xs text-red-300">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <span className="text-red-500/80">&gt; </span>
+                      {chatError.message || "AEGIS chat request failed."}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={clearError}
+                      className="border border-red-500/40 px-2 py-1 text-[10px] text-red-300 hover:bg-red-500/10"
+                    >
+                      DISMISS
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={handleChatSubmit} className="mt-3 flex gap-2 border-t border-neutral-800 pt-3">
+                <input
+                  value={chatInput}
+                  onChange={(event) => setChatInput(event.target.value)}
+                  placeholder="Ask AEGIS..."
+                  className="flex-1 border border-neutral-800 bg-neutral-900 px-3 py-2 font-mono text-sm text-neutral-300 outline-none placeholder:text-neutral-600 focus:border-red-500/40"
+                />
+                <button
+                  type="submit"
+                  disabled={chatStatus === "submitted" || chatStatus === "streaming" || chatInput.trim().length === 0}
+                  className="border border-red-500/50 bg-red-600/10 px-4 py-2 font-mono text-sm text-red-400 transition hover:bg-red-600/20 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  -&gt;
+                </button>
+              </form>
+            </>
           ) : (
             <div className="mt-3 border-t border-neutral-800 pt-3 font-mono text-xs text-neutral-600">
               <span className="text-neutral-700">&gt; </span>
