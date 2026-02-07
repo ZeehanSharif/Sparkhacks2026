@@ -1,9 +1,9 @@
 export type TabKey = "evidence" | "metrics" | "policy";
 
-const tabs: { key: TabKey; label: string; icon: string }[] = [
-  { key: "evidence", label: "Evidence", icon: "🔎" },
-  { key: "metrics", label: "Metrics", icon: "📈" },
-  { key: "policy", label: "Policy", icon: "📜" },
+const tabs: { key: TabKey; label: string }[] = [
+  { key: "evidence", label: "Evidence" },
+  { key: "metrics", label: "Metrics" },
+  { key: "policy", label: "Policy" },
 ];
 
 export default function BottomTabs({
@@ -14,7 +14,7 @@ export default function BottomTabs({
   onChange: (t: TabKey) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-neutral-300 bg-white p-3">
+    <div className="rounded-lg border border-slate-700/50 bg-slate-900 p-3">
       <div className="flex flex-wrap gap-2">
         {tabs.map((t) => (
           <button
@@ -22,13 +22,12 @@ export default function BottomTabs({
             onClick={() => onChange(t.key)}
             type="button"
             className={[
-              "flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold transition",
+              "rounded-lg border px-3 py-2 font-mono text-sm font-semibold transition",
               active === t.key
-                ? "border-neutral-900 bg-neutral-900 text-white"
-                : "border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-50",
+                ? "border-cyan-500/50 bg-cyan-600/20 text-cyan-400"
+                : "border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600 hover:text-slate-300",
             ].join(" ")}
           >
-            <span aria-hidden>{t.icon}</span>
             {t.label}
           </button>
         ))}

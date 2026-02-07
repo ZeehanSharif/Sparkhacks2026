@@ -6,11 +6,11 @@ export default function Panel({
   children?: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-neutral-300 bg-white p-4">
-      <div className="mb-3 text-xs font-bold tracking-wide text-neutral-600">
-        {title.toUpperCase()}
+    <section className="rounded-lg border border-slate-700/50 bg-slate-900 p-4">
+      <div className="mb-3 font-mono text-xs font-bold uppercase tracking-widest text-slate-500">
+        {title}
       </div>
-      <div className="text-sm">{children}</div>
+      <div className="text-sm text-slate-300">{children}</div>
     </section>
   );
 }

@@ -5,9 +5,9 @@ type SearchParams = { case?: string; decision?: string; audit?: string };
 
 function prettyDecision(d?: string) {
   if (!d) return "—";
-  if (d === "approve") return "Approved";
-  if (d === "challenge") return "Challenged";
-  if (d === "override") return "Overridden";
+  if (d === "approve") return "APPROVED";
+  if (d === "challenge") return "CHALLENGED";
+  if (d === "override") return "OVERRIDDEN";
   return d;
 }
 
@@ -23,35 +23,62 @@ export default function EndPage({
   return (
     <Shell>
       <div className="grid min-h-[70dvh] place-items-center">
-        <div className="w-full max-w-xl rounded-3xl border border-neutral-300 bg-white p-6">
-          <div className="mb-2 text-lg font-bold">Conclusion</div>
+        <div className="w-full max-w-xl">
+          <div className="mb-6 text-center">
+            <div className="font-mono text-2xl font-bold tracking-widest text-cyan-400 glow-text">
+              SHIFT COMPLETE.
+            </div>
+            <div className="mt-1 font-mono text-xs text-slate-600">
+              Session terminated // Records sealed
+            </div>
+          </div>
 
-          <div className="rounded-2xl border border-neutral-300 bg-neutral-50 p-4 text-sm text-neutral-800">
-            <div className="font-bold">Case #{caseId}</div>
-            <div className="mt-2">
-              Final action: <span className="font-bold">{decision}</span>
+          <div className="rounded-lg border border-slate-700/50 bg-slate-900 p-5 font-mono text-sm">
+            <div className="mb-4 text-xs uppercase tracking-widest text-slate-500">
+              Session Summary
             </div>
-            <div className="mt-2">
-              Audit Heat: <span className="font-bold">{audit}/3</span>
+
+            <div className="space-y-2 text-slate-400">
+              <div>
+                <span className="text-slate-600">&gt; </span>
+                Case #{caseId}
+              </div>
+              <div>
+                <span className="text-slate-600">&gt; </span>
+                Final action:{" "}
+                <span className="font-bold text-slate-200">{decision}</span>
+              </div>
+              <div>
+                <span className="text-slate-600">&gt; </span>
+                Audit Heat:{" "}
+                <span className="font-bold text-amber-400">{audit}/3</span>
+              </div>
+              <div>
+                <span className="text-slate-600">&gt; </span>
+                Compliance rate:{" "}
+                <span className="text-green-400">
+                  {searchParams.decision === "approve" ? "100%" : searchParams.decision === "challenge" ? "67%" : "33%"}
+                </span>
+              </div>
             </div>
-            <div className="mt-3 text-neutral-600">
-              Next: generate an “internal memo” line based on decision + audit
-              heat.
+
+            <div className="mt-4 border-t border-slate-700/50 pt-4 text-xs text-slate-600">
+              &gt; Tomorrow&apos;s queue: 17 cases.
             </div>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
             <Link
               href="/case"
-              className="rounded-2xl border border-neutral-300 px-4 py-2 text-sm font-bold hover:bg-neutral-50"
+              className="rounded-lg border border-slate-700 px-4 py-2 font-mono text-sm font-bold text-slate-400 transition hover:border-slate-500 hover:text-slate-200"
             >
-              Replay
+              [ REPLAY ]
             </Link>
             <Link
               href="/"
-              className="rounded-2xl bg-neutral-900 px-4 py-2 text-sm font-bold text-white hover:bg-neutral-800"
+              className="rounded-lg border border-cyan-500/50 bg-cyan-600/20 px-4 py-2 font-mono text-sm font-bold text-cyan-400 transition hover:bg-cyan-600/30"
             >
-              Back to Start
+              [ LOG OUT ]
             </Link>
           </div>
         </div>
