@@ -464,7 +464,7 @@ export default function CaseRoomPage() {
               )}
               {hasDecision && (
                 <div className="border-t border-neutral-800 pt-3">
-                  <span className="text-neutral-600">Ground truth:</span>{" "}
+                  <span className="text-neutral-600">Review:</span>{" "}
                   <span className="text-neutral-300">{c.truthNote}</span>
                 </div>
               )}
