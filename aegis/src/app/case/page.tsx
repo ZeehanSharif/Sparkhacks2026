@@ -412,7 +412,7 @@ export default function CaseRoomPage() {
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[320px_1fr_320px]">
-        <div className="space-y-4">
+        <div className="space-y-4 animate-[fadeIn_0.4s_ease-out]">
           <Panel title="Subject Profile">
             <div className="space-y-3 font-mono text-sm">
               <div className="mx-auto grid h-24 w-24 place-items-center border border-neutral-800 bg-neutral-900">
@@ -450,7 +450,7 @@ export default function CaseRoomPage() {
           </Panel>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 animate-[fadeIn_0.4s_ease-out_0.1s] opacity-0" style={{ animationFillMode: 'forwards' }}>
           <Panel title="AEGIS Assessment">
             <div className="space-y-3 font-mono text-sm text-neutral-400">
               <div className="flex items-center gap-2">
@@ -520,7 +520,7 @@ export default function CaseRoomPage() {
                     <div
                       key={message.id}
                       className={[
-                        "border p-3",
+                        "border p-3 animate-[fadeIn_0.3s_ease-out]",
                         isAnalyst
                           ? "border-neutral-700 bg-neutral-900/70 text-neutral-300"
                           : "border-neutral-800 bg-neutral-900 text-neutral-500",
@@ -592,7 +592,7 @@ export default function CaseRoomPage() {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 animate-[fadeIn_0.4s_ease-out_0.2s] opacity-0" style={{ animationFillMode: 'forwards' }}>
           <Panel title="Technical Context">
             <div className="space-y-4 font-mono text-sm text-neutral-500">
               <div>

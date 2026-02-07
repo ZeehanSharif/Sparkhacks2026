@@ -13,7 +13,7 @@ type Props = {
 
 function MetricChip({ label, value, valueClassName }: TopMetric) {
   return (
-    <div className="rounded border border-neutral-800 bg-neutral-900 px-3 py-1.5 font-mono text-[10px] tracking-[0.08em] text-neutral-600">
+    <div className="rounded border border-neutral-800 bg-neutral-900 px-3 py-1.5 font-mono text-[10px] tracking-[0.08em] text-neutral-600 transition-all duration-200 hover:border-neutral-700 hover:bg-neutral-800">
       <span>{label}: </span>
       <span className={valueClassName ?? "text-neutral-300"}>{value}</span>
     </div>
