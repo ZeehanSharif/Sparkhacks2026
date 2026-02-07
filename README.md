@@ -57,9 +57,10 @@ aegis/
 
 1. Install dependencies:
    ```
+   cd aegis
    npm install
    ```
-2. Start the development server:
+2. Start the development server (will need a .env.local file with grok key for api):
    ```
    npm run dev
    ```
