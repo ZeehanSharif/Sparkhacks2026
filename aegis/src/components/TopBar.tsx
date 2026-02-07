@@ -39,7 +39,7 @@ export default function TopBar({
             <span className="font-mono text-[10px] tracking-[0.1em] text-neutral-500 font-normal hidden sm:inline">SHIFT 14:00</span>
           </div>
           <div className="font-mono text-xs text-neutral-600">
-            Case #{caseId} | SLA {sla}
+            Case #{caseId} | {sla}
           </div>
         </div>
       </div>

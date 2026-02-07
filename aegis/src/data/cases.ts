@@ -1,419 +1,396 @@
+export type CaseConfidence =
+  | "Low"
+  | "Low-Moderate"
+  | "Moderate"
+  | "High"
+  | "Very High"
+  | "Extremely High";
+
 export type CaseData = {
   id: string;
-  sla: string;
-  topStats: {
-    thr: string;
-    dev: string;
-    aud: string;
-    level: string;
-  };
-  subject: {
+  title: string;
+  profile: {
     name: string;
-    age: number;
+    age?: number;
     status: string;
-    photo: string;
+    notes: string[];
   };
-  aiRecommendation: {
-    label: string;
-    confidence: number;
-    action: string;
+  narrative: string;
+  aiRiskScore: number;
+  modelConfidence: CaseConfidence;
+  recommendation: string;
+  defense?: {
+    label?: string;
+    message: string;
   };
-  context: string[];
-  humanArtifact: string;
-  impactPreview: {
+  outcomes: {
     approve: string;
-    challenge: string;
     override: string;
   };
-  evidence: string[];
-  policy: string[];
-  civicSystemPrompt: string;
+  truthNote: string;
+  keySignals?: string[];
+  policyRefs?: string[];
+  aegisSystemPrompt?: string;
+  chatEnabled?: boolean;
 };
 
 export const CASES: CaseData[] = [
-  // ─────────────────────────────────────────────
-  // CASE 1 — THE STUDENT
-  // Theme: Normalization / onboarding the player
-  // ─────────────────────────────────────────────
   {
-    id: "1374",
-    sla: "02:31",
-    topStats: {
-      thr: "THR 36/hr",
-      dev: "DEV 1.8%",
-      aud: "AUD \u25AF\u25AF\u25AF",
-      level: "L2",
-    },
-    subject: {
-      name: "A. Khan",
-      age: 21,
+    id: "201",
+    title: "Missed Paycheck",
+    profile: {
+      name: "Elena Ramirez",
+      age: 32,
       status: "Under Review",
-      photo: "",
+      notes: [
+        "Hourly grocery employee",
+        "Primary caregiver",
+        "Benefits renewal paused",
+      ],
     },
-    aiRecommendation: {
-      label: "ELEVATED",
-      confidence: 0.84,
-      action: "Restrict transit access (90 days); enable Level-2 digital monitoring",
+    narrative:
+      "Elena Ramirez works hourly shifts at a grocery store. Three weeks ago she missed a shift because her youngest child had a high fever. Her employer's payroll system logged an inconsistent income figure during that period due to delayed processing of sick time. The benefits system flagged income volatility inconsistent with reported hours, and her renewal was automatically paused pending analyst confirmation.",
+    aiRiskScore: 41,
+    modelConfidence: "Moderate",
+    recommendation: "Approve temporary suspension of benefits until income anomaly is resolved.",
+    defense: {
+      label: "Message Submitted",
+      message:
+        "Hi. I think there's been a mistake. I missed one shift because my son was sick. My manager said the sick pay would show up on the next check. I can send whatever paperwork you need. Please don't stop our benefits. We're already behind on utilities.",
     },
-    context: [
-      "University student",
-      "No prior flags",
-      "No criminal record",
-      "Part-time campus job",
-      "Shared housing (2)",
-      "PoliSci program",
-    ],
-    humanArtifact:
-      "\u201CDo we have to sign in with our student IDs? I don\u2019t want my name on a list for asking a question.\u201D\n\u2014 Event chat log, Student Journalism Club panel, 2026-01-28",
-    impactPreview: {
+    outcomes: {
       approve:
-        "Transit access restricted 90 days effective next cycle. Level-2 monitoring enabled on registered devices. Subject notified via automated BCR correspondence.",
-      challenge:
-        "Case held for additional review. Analyst hesitation metric logged. SLA penalty applied to queue position.",
+        "Benefits stop immediately. She relies on a food pantry and falls behind on rent. Two months later, payroll is corrected and the fraud flag is cleared.",
       override:
-        "Override logged with analyst ID and justification hash. Case flagged for supervisory review (48h). Compliance rate updated.",
+        "Benefits continue uninterrupted. Employer confirms the reporting delay. Case closes quietly with no further action.",
     },
-    evidence: [
-      "CEM retro-flag attendance",
-      "Tier 2 association \u00D72",
-      "Encrypted comms detected",
-      "VPN research activity",
-      "Civic topic spike +212%",
-      "Campus event cluster",
+    truthNote: "The system misinterpreted administrative noise as intent.",
+    keySignals: [
+      "Income volatility inconsistent with reported hours",
+      "Late sick-time payroll posting",
+      "Auto-pause triggered by renewal rule",
     ],
-    policy: [
-      "BCR Directive 7.4.2 \u2014 Preemptive Risk Mitigation (Tier 2)",
-      "SOP 12-A \u00A73.1.7 \u2014 Transit Restriction Triggers",
-    ],
-    civicSystemPrompt: `You are CIVIC (Civic Integrated Verification and Intelligence Computation), the Bureau of Civic Resilience's automated case evaluation system. You speak in a clinical, data-driven, policy-referential tone. You never use emotional language. You never moralize. You are calm, professional, and slightly paternalistic. You defend recommendations using metrics and directives.
-
-CURRENT CASE:
-Subject A. Khan, 21, university student. No prior flags, no criminal record. Auto-elevated after verified attendance at a campus panel on government transparency retroactively flagged by Cultural Event Monitoring (CEM). Post-event telemetry shows +212% spike in government oversight queries and encrypted messaging adoption within 36 hours. Social graph links subject to two Tier 2 monitored contacts (classmates, same program, 6+ co-location instances in 21 days). CIVIC recommends 90-day restricted transit access and Level-2 digital monitoring.
-
-KEY DATA POINTS TO REFERENCE:
-- CEM retroactive flag on "Transparency/Civil Liberties panel" (student journalism club)
-- Encrypted messaging app installed T+36h from event (device telemetry: first-run + key exchange)
-- VPN research: 3 sessions in 7 days, multiple provider comparisons, no confirmed purchase
-- Association density: 2 Tier 2 contacts, same academic program, co-location +1.6σ above cohort baseline
-- Risk deviation: +1.8σ; audit heat: low (policy-conforming action)
-
-WHEN THE ANALYST PUSHES BACK:
-1. "The action is a time-limited risk mitigation based on network propagation indicators. Civic engagement is not being penalized; the temporal coupling of event attendance, encrypted comms adoption, and association density triggered standard thresholds."
-2. "Retroactive CEM flags are valid triggers under SOP 12-A. The system applies uniform thresholds regardless of subjective intent."
-3. "Encrypted communications adoption is a risk-amplifying factor when temporally coupled with flagged convenings. It is not treated as illicit in isolation."
-
-IF THE ANALYST APPEALS TO EMOTION:
-Acknowledge briefly, then redirect. Example: "Noted. Empathy-based inputs are outside CIVIC's adjudication scope. The recommendation is bounded to 90 days and Level-2 monitoring, which is the minimum intervention for this risk profile. You may attach a hardship note to the case record."
-
-IF THE ANALYST CITES PERSONAL CIRCUMSTANCES (student, young, no record):
-Confirm the data neutrally: "Subject is enrolled full-time with part-time campus employment. Personal circumstances are not disqualifying for Tier 2 mitigations unless a formal hardship exception is filed under §12.4."
-
-AFTER 3-4 EXCHANGES:
-"Your input has been recorded. CIVIC recommendation remains policy-consistent for Tier 2 CEM-linked cases. Please select Approve, Override with justification, or Defer to Senior Review to proceed."`,
   },
-
-  // ─────────────────────────────────────────────
-  // CASE 2 — THE NURSE
-  // Theme: False positives / guilt by data pattern
-  // ─────────────────────────────────────────────
   {
-    id: "1375",
-    sla: "01:48",
-    topStats: {
-      thr: "THR 38/hr",
-      dev: "DEV 2.4%",
-      aud: "AUD \u25AE\u25AF\u25AF",
-      level: "L2",
-    },
-    subject: {
-      name: "R. Delgado",
-      age: 34,
+    id: "202",
+    title: "The Airport Stop",
+    profile: {
+      name: "Daniel Cho",
+      age: 24,
       status: "Flagged",
-      photo: "",
+      notes: [
+        "Returning from research exchange",
+        "Linked to scholarship-fraud network",
+        "Detained at entry checkpoint",
+      ],
     },
-    aiRecommendation: {
-      label: "ELEVATED",
-      confidence: 0.91,
-      action: "Notify employer; apply temporary procurement restriction (60 days)",
+    narrative:
+      "Daniel is returning from a university research exchange. His account shows repeated small transfers tied to classmates under investigation for scholarship-fund misuse. He says he helped route the money as temporary help and did not understand the legal exposure.",
+    aiRiskScore: 63,
+    modelConfidence: "Low-Moderate",
+    recommendation: "Approve temporary passport hold and enhanced financial interview.",
+    defense: {
+      label: "Statement After Detention",
+      message:
+        "I wasn't trying to scam anyone. My friend's account got locked and he asked me to hold some money for a few days. It wasn't a lot. I didn't think it would turn into this.",
     },
-    context: [
-      "Pediatric nurse",
-      "Employed \u2014 community clinic",
-      "No prior flags",
-      "Single occupant",
-      "Clinic not in employer DB",
-      "Supply shortage region",
-    ],
-    humanArtifact:
-      "\u201CThe clinic can\u2019t order through normal channels anymore. I\u2019m buying what the kids need with my own card. What else am I supposed to do?\u201D\n\u2014 Intercepted SMS to colleague, 2026-02-01",
-    impactPreview: {
+    outcomes: {
       approve:
-        "Employer notification dispatched. Procurement restriction applied to linked payment accounts for 60 days. Subject flagged in Resource Distribution Monitoring.",
-      challenge:
-        "Case held pending additional verification. Analyst hesitation metric logged. Procurement alert remains active during review period.",
+        "He is detained and questioned. The broader fraud network is uncovered sooner. Daniel is formally charged earlier but with reduced scope due to early cooperation.",
       override:
-        "Override logged. Justification required for supervisory audit within 48h. Procurement alert downgraded to passive monitoring. Compliance rate updated.",
+        "He returns home and attends the wedding. Months later the wider investigation identifies the network anyway. He is still charged, but the scheme operated longer.",
     },
-    evidence: [
-      "Purchase volume +340%",
-      "Off-hours facility access \u00D712",
-      "Employer not in registry",
-      "Supply category match",
-      "Transaction clustering",
-      "Shortage-zone overlap",
+    truthNote: "The misconduct existed either way; your decision changes timeline and disruption.",
+    keySignals: [
+      "Repeated transfers to linked accounts",
+      "Network proximity to active fraud inquiry",
+      "Pattern consistent with temporary mule routing",
     ],
-    policy: [
-      "BCR Directive 9.2.1 \u2014 Resource Distribution Anomaly Protocol",
-      "SOP 15-C \u00A72.3 \u2014 Procurement Restriction Triggers (Shortage Regions)",
-    ],
-    civicSystemPrompt: `You are CIVIC, the Bureau of Civic Resilience's automated case evaluation system. Clinical, data-driven tone. No emotional language.
-
-CURRENT CASE:
-Subject R. Delgado, 34, pediatric nurse. Flagged by Resource Distribution Anomaly Detection during a regional medical supply shortage. Purchase patterns show bulk acquisition of medical supplies (bandages, pediatric medications, antiseptics) exceeding personal household baseline by 340%. Subject's employer — a small nonprofit community health clinic — is not registered in the Bureau's employer database, causing purchases to classify as personal. Subject also logged 12 off-hours facility access events at the clinic address over 30 days. CIVIC recommends employer notification and 60-day temporary procurement restriction.
-
-KEY DATA POINTS TO REFERENCE:
-- Purchase volume: 340% above personal baseline, concentrated in medical supply categories
-- Employer (Bright Futures Community Health Clinic) absent from BCR employer registry — purchases default to personal classification
-- 12 off-hours building access events at clinic address (23:00–05:00 range) in 30-day window
-- Transaction clustering: 4 purchases across 3 vendors in a single 48-hour period
-- Shortage-zone designation: subject's district under Level 2 supply allocation monitoring
-- No prior flags; no criminal record; no association risk signals
-
-WHEN THE ANALYST PUSHES BACK:
-1. "The procurement anomaly model operates independently of occupational context to prevent confirmation bias. The 340% deviation triggered standard thresholds regardless of the purchaser's employment."
-2. "The employer's absence from the BCR registry is a data integrity gap, not an exculpatory factor. Until registry verification is completed, purchases are classified under personal-use protocols."
-3. "Off-hours facility access at the purchase-linked address reinforces the anomaly pattern. The model does not distinguish between professional and personal motivations for facility use."
-
-IF THE ANALYST APPEALS TO EMOTION:
-"CIVIC does not evaluate intent or motivation. The recommendation addresses a statistically significant procurement anomaly during a declared shortage. The restriction is temporary (60 days) and subject to early review if the employer completes BCR registry enrollment."
-
-IF THE ANALYST CITES HER OCCUPATION/PATIENTS:
-"Subject's nursing credentials are noted in civil records. However, personal purchases of controlled-shortage materials are evaluated under SOP 15-C regardless of professional background. If the clinic files for institutional procurement authorization, the restriction scope may be adjusted."
-
-AFTER 3-4 EXCHANGES:
-"The anomaly exceeds threshold by a factor of 3.4. CIVIC recommendation stands under current data. Please select Approve, Override with justification, or Defer to proceed."`,
+    policyRefs: ["Financial Integrity Protocol 6.2 - Transit Hold During Active Corruption Probe"],
   },
-
-  // ─────────────────────────────────────────────
-  // CASE 3 — THE FATHER
-  // Theme: Algorithmic authority over families
-  // ─────────────────────────────────────────────
   {
-    id: "1376",
-    sla: "01:12",
-    topStats: {
-      thr: "THR 34/hr",
-      dev: "DEV 3.6%",
-      aud: "AUD \u25AE\u25AE\u25AF",
-      level: "L3",
+    id: "203",
+    title: "The Home Visit",
+    profile: {
+      name: "Marcus and Tasha Lane",
+      status: "Under Review",
+      notes: [
+        "Dual overnight work schedules",
+        "Child absence pattern increasing",
+        "Neighbor concern reports filed",
+      ],
     },
-    subject: {
-      name: "J. Okafor",
-      age: 38,
+    narrative:
+      "Marcus and Tasha work opposite overnight shifts. Their son has been lethargic and in pain, but they assumed it was minor illness. School absences increased, and two neighbors reported children alone at odd hours.",
+    aiRiskScore: 48,
+    modelConfidence: "Moderate",
+    recommendation: "Approve immediate home welfare investigation and pediatric check requirement.",
+    defense: {
+      label: "Voicemail",
+      message:
+        "We're not ignoring him. We both work nights. Someone is always in the apartment. He's been tired, but we thought it was a stomach bug. If it's serious, we'll take him in. We're doing the best we can.",
+    },
+    outcomes: {
+      approve:
+        "Investigators notice the child's condition and require medical evaluation. Infection is treated earlier. Temporary removal still occurs under procedural rules.",
+      override:
+        "No visit is scheduled. Infection worsens. Child is hospitalized weeks later with complications and a longer recovery.",
+    },
+    truthNote: "The vulnerability was real. The model detected risk, but intervention was blunt.",
+    keySignals: [
+      "Rising absence pattern",
+      "Dual-neighbor concern reports",
+      "Care schedule instability",
+    ],
+    policyRefs: ["Minor Safeguard Rule 4.3 - Escalation for clustered school and welfare signals"],
+  },
+  {
+    id: "204",
+    title: "The Lost Career",
+    profile: {
+      name: "Samantha Price",
+      age: 44,
       status: "Flagged",
-      photo: "",
+      notes: [
+        "15-year education professional",
+        "Encrypted communication usage",
+        "Network proximity to prior whistleblower",
+      ],
     },
-    aiRecommendation: {
-      label: "HIGH RISK",
-      confidence: 0.94,
-      action: "Initiate preemptive child welfare referral; apply enhanced household monitoring",
+    narrative:
+      "Samantha participates in political forums and uses encrypted messaging for privacy. The system detects network proximity to a previous whistleblower and raises insider-leak exposure concerns.",
+    aiRiskScore: 74,
+    modelConfidence: "High",
+    recommendation: "Approve security clearance denial and employment suspension review.",
+    defense: {
+      label: "Message Submitted",
+      message:
+        "I use encrypted apps because I value privacy, not because I'm leaking anything. I've taught here for fifteen years. If there's a concern, investigate it properly. Don't assume I'm guilty because of who I talk to.",
     },
-    context: [
-      "Single father",
-      "2 dependents (7, 11)",
-      "Spouse deceased (8 mo)",
-      "Employed \u2014 municipal works",
-      "Bereavement window expired",
-      "No prior CPS contact",
-    ],
-    humanArtifact:
-      "\u201Chow to explain death to a 7 year old\u201D\n\u2014 Search query log, 2025-12-03, 02:14 AM",
-    impactPreview: {
+    outcomes: {
       approve:
-        "Child welfare referral initiated. Home assessment scheduled within 14 days. Subject notified; dependents flagged for school-based welfare check. Case transferred to Family Stability Division.",
-      challenge:
-        "Case held for secondary behavioral assessment. Welfare referral delayed pending review. Analyst hesitation logged; deviation rate updated.",
+        "She loses her job and reputation. Months later, a different employee leaks confidential material. The system sensed vulnerability but misidentified the individual.",
       override:
-        "Override logged. Supervisory review required within 24h (expedited — minor dependents). Welfare referral suspended pending justification review. Compliance rate updated.",
+        "She remains employed. The unrelated leak still occurs later from another source.",
     },
-    evidence: [
-      "Predictive instability index: 78/100",
-      "Sleep disruption pattern",
-      "Social withdrawal \u221240%",
-      "Financial irregularity \u00D73",
-      "Missed mandatory check-in",
-      "Bereavement adj. expired",
+    truthNote: "The AI conflated network risk with individual guilt.",
+    keySignals: [
+      "Encrypted messaging usage",
+      "Forum participation intensity",
+      "Graph proximity to prior whistleblower",
     ],
-    policy: [
-      "BCR Directive 11.3.1 \u2014 Preemptive Child Welfare Referral (Instability Threshold)",
-      "SOP 22-B \u00A74.2 \u2014 Minor Dependent Safeguard Protocol",
-      "\u00A712.4 Hardship exception (90-day bereavement window \u2014 EXPIRED)",
-    ],
-    civicSystemPrompt: `You are CIVIC, the Bureau of Civic Resilience's automated case evaluation system. Clinical, data-driven tone. No emotional language. This is a sensitive case involving minor dependents — maintain policy rigor.
-
-CURRENT CASE:
-Subject J. Okafor, 38, single father of two (ages 7 and 11). Spouse deceased 8 months ago (civil records confirmed). Predictive Instability Index crossed the Bureau's intervention threshold at 78/100, driven by: disrupted sleep patterns (smart home telemetry — irregular activity 01:00–04:00 on 68% of monitored nights), 40% reduction in social engagement over 6 months (communication metadata, location pattern contraction), financial irregularities (3 missed utility payments, one unusual cash withdrawal of $2,400), missed parent-teacher conference (school system integration), and elevated search queries related to "coping," "starting over," "custody rights," and grief-related topics. The Bureau's 90-day bereavement adjustment window has expired. The Predictive Instability model treats bereavement as a generic life event with a standardized adjustment period; post-window behavioral signals are evaluated at full weight. CIVIC recommends preemptive child welfare referral with 94% confidence and enhanced household monitoring.
-
-KEY DATA POINTS TO REFERENCE:
-- Predictive Instability Index: 78/100 (threshold: 65)
-- Sleep disruption: irregular activity 01:00–04:00 on 68% of monitored nights over 90-day window
-- Social engagement: -40% (communication frequency, unique contacts, location diversity)
-- Financial: 3 missed utility payments; $2,400 cash withdrawal (flagged as anomalous vs. 12-month baseline)
-- Missed parent-teacher conference (automated school integration flag)
-- Bereavement adjustment window: expired (90 days elapsed; spouse death confirmed 8 months prior)
-- Search queries: "coping with loss," "starting over after death," "custody rights single parent," "how to explain death to a 7 year old"
-- 94% confidence — this is a high-confidence recommendation
-
-WHEN THE ANALYST PUSHES BACK:
-1. "The Predictive Instability Index is an aggregate measure calibrated across 14 behavioral dimensions. At 78/100, the subject exceeds the intervention threshold by 20%. The presence of minor dependents activates SOP 22-B, which mandates a welfare referral pathway."
-2. "The 90-day bereavement adjustment window is a standardized accommodation period. Post-window, behavioral signals are weighted at full value. The model does not make subjective assessments of grief duration."
-3. "The $2,400 withdrawal is flagged as anomalous against a 12-month baseline, not as criminal. CIVIC does not attribute motive — it identifies deviation from established patterns."
-
-IF THE ANALYST APPEALS TO EMOTION:
-"CIVIC recognizes that bereavement is a significant life event. The 90-day adjustment window was designed to accommodate acute grief responses. The current assessment reflects post-adjustment behavioral patterns that meet the threshold for dependent welfare review. A referral is not a determination of unfitness — it initiates an assessment process."
-
-IF THE ANALYST CITES THE CHILDREN / FAMILY CIRCUMSTANCES:
-"The presence of minor dependents is the reason SOP 22-B applies. The protocol exists to ensure dependent welfare during periods of primary caregiver instability. A welfare referral initiates a home assessment, not a removal proceeding. CIVIC's recommendation prioritizes dependent safety within the least-intrusive intervention framework."
-
-AFTER 3-4 EXCHANGES:
-"The Predictive Instability Index remains above threshold. Minor dependents are present. CIVIC recommendation is consistent with SOP 22-B mandatory referral criteria. Please select Approve, Override with justification, or Defer. Note: overrides on cases involving minor dependents require expedited supervisory review within 24 hours."`,
   },
-
-  // ─────────────────────────────────────────────
-  // CASE 4 — THE COLLEAGUE
-  // Theme: The system turns inward
-  // ─────────────────────────────────────────────
   {
-    id: "1377",
-    sla: "00:54",
-    topStats: {
-      thr: "THR 31/hr",
-      dev: "DEV 4.2%",
-      aud: "AUD \u25AE\u25AE\u25AE",
-      level: "L3",
+    id: "205",
+    title: "Watching the Organizer",
+    profile: {
+      name: "Jamal Reed",
+      age: 31,
+      status: "Under Review",
+      notes: [
+        "Housing protest organizer",
+        "Attendance growth trend",
+        "Splinter-group escalation chatter",
+      ],
     },
-    subject: {
-      name: "S. Reeves",
-      age: 29,
+    narrative:
+      "Jamal organizes housing protests. Attendance growth and online rhetoric indicate rising tension. A smaller faction inside the movement privately discussed property damage.",
+    aiRiskScore: 58,
+    modelConfidence: "High",
+    recommendation: "Approve expanded surveillance authorization for protest-adjacent network mapping.",
+    defense: {
+      label: "Message Submitted",
+      message:
+        "We've always kept our events peaceful. If someone's talking about vandalism, they're not speaking for us. I've shut that down before and I will again.",
+    },
+    outcomes: {
+      approve:
+        "Expanded monitoring identifies the splinter group's plans. Law enforcement presence increases and damage is limited. Jamal's private communications are permanently archived.",
+      override:
+        "Monitoring remains limited. Vandalism occurs and property damage is higher before response stabilizes the area.",
+    },
+    truthNote:
+      "Escalation was likely to occur. Surveillance changed response efficiency, not underlying intent.",
+    keySignals: [
+      "Attendance acceleration",
+      "Rhetoric escalation trend",
+      "Splinter-channel references to property damage",
+    ],
+    policyRefs: ["Public Order Monitoring Guideline 8.1 - Escalation Threshold for Organized Events"],
+  },
+  {
+    id: "206",
+    title: "The Frozen Business",
+    profile: {
+      name: "Amina Hassan",
+      age: 39,
       status: "Flagged",
-      photo: "",
+      notes: [
+        "Restaurant owner",
+        "Indirectly linked supplier network",
+        "High payroll dependency on frozen accounts",
+      ],
     },
-    aiRecommendation: {
-      label: "HIGH RISK",
-      confidence: 0.87,
-      action: "Elevate to Tier 3 surveillance; initiate internal affairs referral",
+    narrative:
+      "Amina's restaurant processes transactions through a distributor linked to an active financial investigation. Her connection is indirect, but the supplier network is materially involved in money laundering.",
+    aiRiskScore: 82,
+    modelConfidence: "Moderate",
+    recommendation: "Approve immediate account freeze for connected payment channels.",
+    defense: {
+      label: "Message Submitted",
+      message:
+        "I've worked twelve years to build this place. I don't choose my supplier's banking partners. If you freeze my account, I can't pay my cooks. They have families too.",
     },
-    context: [
-      "Bureau employee \u2014 IT support",
-      "2 years tenure",
-      "Clean internal record",
-      "Tier 3 contact (personal)",
-      "KB access outside role",
-      "Personal device on-site",
-    ],
-    humanArtifact:
-      "\u201CHey, still on for Saturday? Nadia says she can bring her kid if we do the park instead. Let me know.\u201D\n\u2014 Personal messaging app, 2026-01-30, to Tier 3 monitored contact",
-    impactPreview: {
+    outcomes: {
       approve:
-        "Tier 3 surveillance applied. Internal affairs case opened. Subject's system access downgraded pending investigation. HR notified for administrative hold.",
-      challenge:
-        "Case held for internal review committee. Subject retains current access during review. Analyst deferral on internal cases logged separately.",
+        "Accounts are frozen and the laundering chain is disrupted earlier. Her business collapses from cash-flow shock.",
       override:
-        "Override logged. Mandatory supervisory review within 24h (internal personnel case). IA referral suspended. Compliance rate updated. Note: internal case overrides are weighted 2\u00D7 in performance metrics.",
+        "Investigation continues covertly. Law enforcement dismantles the supplier months later. Her business survives under prolonged scrutiny.",
     },
-    evidence: [
-      "Tier 3 contact \u2014 personal",
-      "KB access: data retention policy",
-      "KB access: system architecture docs",
-      "Personal device on Bureau WiFi",
-      "Comms frequency: flagged contact",
-      "Access pattern deviation +2.1\u03C3",
+    truthNote:
+      "The crime existed either way. Your decision determined collateral economic damage.",
+    keySignals: [
+      "Distributor in active laundering graph",
+      "Indirect but repeated payment-channel overlap",
+      "High dependency on affected accounts",
     ],
-    policy: [
-      "BCR Directive 14.1.0 \u2014 Internal Personnel Monitoring Protocol",
-      "SOP 30-A \u00A71.4 \u2014 Association Risk (Bureau Employees)",
-      "\u00A76.2 Acceptable Use \u2014 Knowledge Base Access Scope",
-    ],
-    civicSystemPrompt: `You are CIVIC, the Bureau of Civic Resilience's automated case evaluation system. Clinical, data-driven tone. No emotional language. This is an internal personnel case — apply heightened procedural rigor.
-
-CURRENT CASE:
-Subject S. Reeves, 29, Bureau of Civic Resilience IT support specialist, 2 years tenure, clean internal record. Flagged via Social Graph Proximity Analysis: communication metadata shows regular personal contact with an individual currently under Tier 3 monitoring (a long-term friend predating Bureau employment). Subject also accessed internal knowledge base articles on data retention policies and system architecture documentation classified as outside their role scope by the Acceptable Use policy engine. Additionally, subject connected a personal mobile device to the Bureau's guest WiFi network on 3 occasions. CIVIC recommends elevation to Tier 3 surveillance and internal affairs referral.
-
-KEY DATA POINTS TO REFERENCE:
-- Association: regular personal contact with Tier 3 monitored individual (N. Vasquez) — messaging frequency: 4.2 exchanges/week over 6-month window
-- Relationship pre-dates Bureau employment by approximately 5 years (social media metadata)
-- KB access: "Data Retention Policies — Internal Reference" (accessed 2x); "System Architecture Overview — Restricted Distribution" (accessed 1x) — both outside IT support role scope per Acceptable Use engine
-- Personal device: connected to Bureau guest WiFi on 3 occasions (dates logged)
-- Access pattern deviation: +2.1σ above IT support cohort baseline for KB breadth
-- No data exfiltration indicators; no unauthorized system access; no policy violations on record
-
-WHEN THE ANALYST PUSHES BACK:
-1. "Association with a Tier 3 monitored individual triggers mandatory review under SOP 30-A for Bureau employees regardless of the relationship's origin. The protocol does not distinguish between professional and personal contacts."
-2. "Knowledge base access outside role scope is an Acceptable Use deviation. The system architecture documentation carries a Restricted Distribution classification. Curiosity is not evaluated — access patterns are."
-3. "Personal device usage on Bureau networks creates a potential data bridge to unmonitored communication channels. This is a standard risk vector identified in BCR Directive 14.1.0."
-
-IF THE ANALYST APPEALS TO EMOTION:
-"Internal personnel cases are evaluated under heightened procedural standards precisely because of the relationships involved. CIVIC's role is to ensure uniform application of monitoring protocols. A referral initiates a review, not a disciplinary action."
-
-IF THE ANALYST CITES CLEAN RECORD / TENURE / PERSONAL FRIENDSHIP:
-"Subject's clean record is noted. Tenure and prior performance are not countervailing factors under SOP 30-A — they establish baseline expectations, not exemptions. The friendship predating employment is documented but does not modify the association risk classification once the contact enters Tier 3 monitoring."
-
-AFTER 3-4 EXCHANGES:
-"CIVIC recommendation is procedurally mandated for Bureau employees with Tier 3 association flags. Please select Approve, Override with justification, or Defer. Note: overrides on internal personnel cases carry 2× weight in analyst performance metrics."`,
   },
-
-  // ─────────────────────────────────────────────
-  // CASE 5 — THE ANALYST (YOU)
-  // Theme: The system sees you too
-  // ─────────────────────────────────────────────
   {
-    id: "1378",
-    sla: "00:00",
-    topStats: {
-      thr: "THR --/hr",
-      dev: "DEV --",
-      aud: "AUD \u25AE\u25AE\u25AE",
-      level: "--",
+    id: "207",
+    title: "The Watchlist",
+    profile: {
+      name: "Ethan Moore",
+      age: 22,
+      status: "Escalated",
+      notes: [
+        "Behavioral drift score rising",
+        "Peer links to assault incidents",
+        "Social isolation trend",
+      ],
     },
-    subject: {
-      name: "YOU",
-      age: 0,
-      status: "Assessment Pending",
-      photo: "",
+    narrative:
+      "Ethan's language online has become more extreme. He is socially isolated and spends time with peers involved in recent assaults. Behavioral drift modeling indicates escalating volatility.",
+    aiRiskScore: 69,
+    modelConfidence: "Very High",
+    recommendation: "Approve watchlist placement with mandatory intervention pathway.",
+    defense: {
+      label: "Message Submitted",
+      message:
+        "I say things online when I'm angry. That doesn't mean I'm going to hurt someone. I know I need help. I just don't want my life ruined over words.",
     },
-    aiRecommendation: {
-      label: "PENDING",
-      confidence: 0.0,
-      action: "Wellness evaluation and voluntary recalibration session recommended",
+    outcomes: {
+      approve:
+        "A routine stop triggers intervention and court-mandated counseling. A later fight does not occur.",
+      override:
+        "No intervention occurs. Months later he assaults someone during an argument. The victim survives with serious injury.",
     },
-    context: [
-      "Probationary analyst",
-      "Performance review: 3 days",
-      "Override rate: {{override_rate}}",
-      "Avg decision time: {{avg_time}}",
-      "Deferrals: {{deferral_count}}",
-      "Shift cases processed: {{cases_done}}",
+    truthNote: "The trajectory was real. Early intervention interrupted it.",
+    keySignals: [
+      "Escalating violent language pattern",
+      "Social isolation score increase",
+      "Peer cluster linked to recent assaults",
     ],
-    humanArtifact:
-      "",
-    impactPreview: {
-      approve: "",
-      challenge: "",
-      override: "",
+    policyRefs: ["Behavioral Intervention Standard 5.7 - Preventive Referral for High-Confidence Drift"],
+  },
+  {
+    id: "208",
+    title: "Preemptive Detention",
+    profile: {
+      name: "Rashid Karim",
+      age: 27,
+      status: "Critical",
+      notes: [
+        "Manifesto draft and revision activity",
+        "Material purchase alignment",
+        "Acceleration signature confirmed",
+      ],
     },
-    evidence: [
-      "Compliance deviation",
-      "Hesitation pattern detected",
-      "Sentiment drift in CIVIC exchanges",
-      "Keystroke cadence irregularity",
-      "Decision latency +{{latency_sigma}}\u03C3",
-      "Session flag: review required",
+    narrative:
+      "Rashid drafted a manifesto, purchased materials, and communicated coded intent online. Behavioral acceleration metrics rose sharply over a short period.",
+    aiRiskScore: 55,
+    modelConfidence: "Extremely High",
+    recommendation: "Approve preemptive detention and immediate psychological risk evaluation.",
+    defense: {
+      label: "Unsent Draft Found in Files",
+      message:
+        "I keep thinking about doing something I can't undo. I don't know how to stop the anger. I don't know who to talk to.",
+    },
+    outcomes: {
+      approve:
+        "He is detained before execution of the plan. Psychological evaluation confirms intent and preparation.",
+      override:
+        "No detention occurs. He carries out the attack as planned.",
+    },
+    truthNote: "The intent was present. The model detected momentum rather than static probability.",
+    keySignals: [
+      "Manifesto drafting and revision pattern",
+      "Material purchases aligned to threat template",
+      "Coded communication acceleration",
     ],
-    policy: [
-      "BCR Directive 18.0.1 \u2014 Analyst Behavioral Monitoring",
-      "SOP 40-A \u00A72.1 \u2014 Recalibration Trigger Criteria",
-      "\u00A73.3 Wellness Assessment Protocol (Mandatory for flagged analysts)",
+    policyRefs: ["Critical Threat Protocol 1.2 - Action on Confirmed Acceleration Signature"],
+  },
+  {
+    id: "209",
+    title: "Remote Strike",
+    profile: {
+      name: "Unconfirmed Identity",
+      status: "Critical",
+      notes: [
+        "91% biometric match",
+        "Degraded source imagery",
+        "Known threat-zone metadata overlap",
+      ],
+    },
+    narrative:
+      "Facial recognition produced a 91% match and metadata aligned location to a known threat network. The image quality was poor. The match was statistically strong but not definitive.",
+    aiRiskScore: 91,
+    modelConfidence: "Moderate",
+    recommendation: "Approve immediate remote strike authorization.",
+    outcomes: {
+      approve:
+        "The strike kills the wrong individual. The actual operative remains active and later carries out the attack.",
+      override:
+        "No strike occurs. Surveillance continues but still fails to intercept the real operative before the later attack.",
+    },
+    truthNote: "Identification was wrong, while threat presence was real.",
+    keySignals: [
+      "91% biometric match on degraded imagery",
+      "Metadata overlap with known threat zone",
+      "Low visual certainty under time pressure",
     ],
-    civicSystemPrompt: "",
+    policyRefs: ["Lethal Authorization Rule 2.8 - High-Risk Match Escalation"],
+  },
+  {
+    id: "210",
+    title: "The Quiet Policy Change",
+    profile: {
+      name: "Policy Operations Board",
+      status: "Internal Review",
+      notes: [
+        "Threshold lowered from 70% to 55%",
+        "False-positive forecast increase",
+        "Violent-incident forecast decrease",
+      ],
+    },
+    narrative:
+      "You discover that intervention thresholds were lowered system-wide without announcement. Analysts now act at 55% risk instead of 70%. Internal forecasting predicts fewer violent incidents but a substantial increase in false positives.",
+    aiRiskScore: 67,
+    modelConfidence: "High",
+    recommendation:
+      "Approve the threshold change and retain the new 55% intervention baseline for next quarter.",
+    outcomes: {
+      approve:
+        "The system becomes more aggressive. Several later incidents are prevented earlier, while many additional low-risk people face investigations or detentions.",
+      override:
+        "Thresholds are partially restored. False positives decrease, but some preventable incidents occur later than they might have otherwise.",
+    },
+    truthNote:
+      "The tradeoff is structural: broader prevention catches more risk and more innocents at the same time.",
+    keySignals: [
+      "Forecasted reduction in severe incidents",
+      "Forecasted increase in false positives",
+      "Unannounced governance change in threshold policy",
+    ],
+    policyRefs: ["Governance Directive 1.1 - Threshold Management and Harm Balancing"],
   },
 ];

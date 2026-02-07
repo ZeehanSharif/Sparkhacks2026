@@ -3,20 +3,27 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import Shell from "@/components/Shell";
+import { CASES } from "@/data/cases";
+import { useOperatorStore } from "@/state/operatorStore";
 
 const BRIEFING_LINES = [
   "Welcome, Analyst. Clearance: Level 3.",
-  "Your shift queue contains 5 cases for review.",
-  "Each case has been pre-evaluated by CIVIC's predictive assessment engine.",
+  `Your shift queue contains ${CASES.length} cases for review.`,
+  "Each case has been pre-evaluated by AEGIS's predictive assessment engine.",
   "Your role is to review and action each recommendation.",
   "Compliance rate is monitored for quality assurance purposes.",
 ];
 
 export default function BriefingPage() {
   const [visibleLines, setVisibleLines] = useState(0);
+  const resetOperatorSession = useOperatorStore((state) => state.reset);
   const done = visibleLines >= BRIEFING_LINES.length;
 
   const lines = useMemo(() => BRIEFING_LINES.slice(0, visibleLines), [visibleLines]);
+
+  useEffect(() => {
+    resetOperatorSession();
+  }, [resetOperatorSession]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {

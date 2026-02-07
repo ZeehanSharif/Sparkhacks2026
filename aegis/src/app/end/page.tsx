@@ -1,73 +1,45 @@
+"use client";
+
 import Link from "next/link";
+import { useMemo } from "react";
 import Shell from "@/components/Shell";
 import { CASES } from "@/data/cases";
-
-type Decision = "approve" | "challenge" | "override";
-type SearchParams = {
-  decisions?: string;
-  audit?: string;
-  overrides?: string;
-  compliance?: string;
-};
-
-type EndPageProps = {
-  searchParams: SearchParams | Promise<SearchParams>;
-};
-
-function parseDecision(value: string): Decision | null {
-  if (value === "approve" || value === "challenge" || value === "override") return value;
-  return null;
-}
-
-function prettyDecision(d: Decision) {
-  if (d === "approve") return "APPROVED";
-  if (d === "challenge") return "DEFERRED";
-  return "OVERRIDDEN";
-}
+import {
+  prettyDecision,
+  selectSessionSummary,
+  useOperatorStore,
+  type Decision,
+} from "@/state/operatorStore";
+import { useShallow } from "zustand/react/shallow";
 
 function decisionColor(d: Decision) {
   if (d === "approve") return "text-green-400";
-  if (d === "challenge") return "text-amber-400";
   return "text-red-400";
 }
 
-export default async function EndPage({
-  searchParams,
-}: EndPageProps) {
-  const resolvedSearchParams = await Promise.resolve(searchParams);
+export default function EndPage() {
+  const summary = useOperatorStore(useShallow(selectSessionSummary));
+  const decisions = useOperatorStore((state) => state.decisions);
+  const reviewedCaseIds = useMemo(() => CASES.map((caseData) => caseData.id), []);
+  const decisionRows = useMemo(
+    () =>
+      reviewedCaseIds.reduce<{ id: string; decision: Decision }[]>((rows, id) => {
+        const decision = decisions[id];
+        if (!decision) return rows;
+        rows.push({ id, decision });
+        return rows;
+      }, []),
+    [decisions, reviewedCaseIds],
+  );
 
-  const decisions = (resolvedSearchParams.decisions ?? "")
-    .split(",")
-    .map((value) => parseDecision(value.trim()))
-    .filter((value): value is Decision => value !== null);
-
-  const sessionCases = CASES.slice(0, 4);
-
-  const decisionRows = decisions.map((decision, index) => {
-    const caseData = sessionCases[index];
-    return {
-      id: caseData?.id ?? `#${index + 1}`,
-      decision,
-    };
-  });
-
-  const totalCases = decisionRows.length;
-  const approvals = decisionRows.filter((row) => row.decision === "approve").length;
-  const challenges = decisionRows.filter((row) => row.decision === "challenge").length;
-  const overridesFromDecisions = decisionRows.filter((row) => row.decision === "override").length;
-
-  const parsedOverrides = Number(resolvedSearchParams.overrides);
-  const overrideCount = Number.isFinite(parsedOverrides) ? parsedOverrides : overridesFromDecisions;
-
-  const parsedAudit = Number(resolvedSearchParams.audit);
-  const auditHeat = Number.isFinite(parsedAudit) ? parsedAudit : 0;
-
-  const parsedCompliance = Number(resolvedSearchParams.compliance);
-  const complianceRate = Number.isFinite(parsedCompliance)
-    ? parsedCompliance
-    : totalCases > 0
-      ? Math.round((approvals / totalCases) * 100)
-      : 100;
+  const {
+    totalDecided: totalCases,
+    approvals,
+    disagreementCount,
+    overrideCount,
+    auditHeat,
+    complianceRate,
+  } = summary;
 
   return (
     <Shell>
@@ -97,8 +69,8 @@ export default async function EndPage({
               </div>
               <div>
                 <span className="text-neutral-700">&gt; </span>
-                Approvals: <span className="text-green-400">{approvals}</span> | Deferrals:{" "}
-                <span className="text-amber-400">{challenges}</span> | Overrides:{" "}
+                Approvals: <span className="text-green-400">{approvals}</span> | Disagreements:{" "}
+                <span className="text-amber-400">{disagreementCount}</span> | Overrides:{" "}
                 <span className="text-red-400">{overrideCount}</span>
               </div>
               <div>
@@ -154,7 +126,7 @@ export default async function EndPage({
 
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
-              href="/case"
+              href="/briefing"
               className="border border-neutral-800 px-5 py-3 font-mono text-[10px] font-bold tracking-[0.2em] text-neutral-500 transition hover:border-neutral-600 hover:text-neutral-300"
             >
               REPLAY
