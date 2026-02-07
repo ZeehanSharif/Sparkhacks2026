@@ -1,37 +1,37 @@
 # ---- deps ----
 FROM node:20-alpine AS deps
-WORKDIR /app
+WORKDIR /app/aegis
 
-# Install dependencies based on whatever lockfile you have
-COPY package.json package-lock.json* npm-shrinkwrap.json* ./
+COPY aegis/package.json aegis/package-lock.json* ./
 RUN npm ci
 
 # ---- builder ----
 FROM node:20-alpine AS builder
-WORKDIR /app
+WORKDIR /app/aegis
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY --from=deps /app/aegis/node_modules ./node_modules
+COPY aegis/ ./
 
-# Build Next.js
 RUN npm run build
 
 # ---- runner ----
 FROM node:20-alpine AS runner
-WORKDIR /app
+WORKDIR /app/aegis
 ENV NODE_ENV=production
 
-# If you want a non-root user (recommended)
 RUN addgroup -S nextjs && adduser -S nextjs -G nextjs
 
-# Copy only what we need to run
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/next.config.* ./
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
+# Copy only build artifacts + runtime deps
+COPY --from=builder /app/aegis/package.json ./package.json
+COPY --from=builder /app/aegis/node_modules ./node_modules
+COPY --from=builder /app/aegis/public ./public
+COPY --from=builder /app/aegis/.next ./.next
+# If you have next.config.js/ts, keep it (safe even if missing)
+COPY --from=builder /app/aegis/next.config.* ./
 
 USER nextjs
-
 EXPOSE 3000
+
+# Ensure it binds to the platform port (your platform passes PORT=3000)
+ENV PORT=3000
 CMD ["npm", "start"]
